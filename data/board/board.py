@@ -16,8 +16,8 @@ class Board():
     def __init__(self, row_count, col_count):
         self.row_count = row_count
         self.col_count = col_count
-        self.tiles = [[None for col in self.col_count] for row in self.row_count]
-        self.blocks = [[None for col in self.col_count] for row in self.row_count]
+        self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
+        self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
 
     def clear(self):
         '''
@@ -25,8 +25,14 @@ class Board():
         '''
         # del self.tiles[:]
         # del self.blocks[:]
-        self.tiles = [[None for col in self.col_count] for row in self.row_count]
-        self.blocks = [[Block() for col in self.col_count] for row in self.row_count]
+        self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
+        self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
+
+    def get_block_color(self, row, col):
+        '''
+        Method Description
+        '''
+        return self.blocks[row][col].get_color()
 
     def place_tile(self, tile, row, col, direction):
         '''
@@ -40,6 +46,14 @@ class Board():
         if not self.check_tile_adjacent_color(tile, row, col, direction):
             return False
 
+        self.__add_tile(tile, row, col, direction)
+
+        return True
+
+    def __add_tile(self, tile, row, col, direction):
+        '''
+        Method Description
+        '''
         self.tiles[row][col] = tile
 
         block_one = tile.get_block(0)
@@ -58,8 +72,6 @@ class Board():
             self.blocks[row-1][col].mix_color(color_two)
         if direction == DIRECTION.DOWN:
             self.blocks[row+1][col].mix_color(color_two)
-
-        return True
 
     def is_tile_on_board(self, row, col, direction):
         '''
