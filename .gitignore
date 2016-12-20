@@ -1,0 +1,7 @@
+# pyc files
+____pycache__/*
+*.pyc
+
+# visual studio code files
+.vscode/*
+
