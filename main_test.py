@@ -87,7 +87,6 @@ def test_board_tile_placing():
         board_drawer.set_marker(tile, row, col, direction)
         board_drawer.draw_color()
 
-        tile_placement_choices.show_full_choices()
         action = tile_placement_choices.choice_user_selection()
         if action:
             tile, row, col, direction = action(tile, row, col, direction, board)

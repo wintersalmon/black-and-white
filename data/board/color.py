@@ -46,7 +46,7 @@ class COLOR(AutoNumberEnum):
         Class Description
         '''
         if color == COLOR.NOCOLOR:
-            return '@'
+            return '.'
         if color == COLOR.WHITE:
             return 'W'
         if color == COLOR.GRAY:
