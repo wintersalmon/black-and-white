@@ -5,6 +5,7 @@ WinterSalmon
 Contains Choice
 '''
 
+
 class Choice():
     '''
     Choice class used to store choice key, action, information
