@@ -6,18 +6,18 @@ Main
 '''
 
 from data.data import Data
-from gui.gui import Gui
+from cli.cli import Cli
 
 if __name__ == "__main__":
     print('welcome to black and white')
     GAME = Data()
-    GUI = Gui()
-    GUI.start(GAME)
-    while GUI.next():
-        GUI.update()
+    CLI = Cli()
+    CLI.start(GAME)
+    while CLI.next():
+        CLI.update()
 
-        GUI.show()
-        GUI.show_action_input()
+        CLI.show()
+        CLI.show_action_input()
 
-        if GUI.has_action_input():
-            GUI.action_input()
+        if CLI.has_action_input():
+            CLI.action_input()

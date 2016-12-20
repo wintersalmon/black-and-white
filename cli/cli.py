@@ -2,14 +2,14 @@
 BLACK-AND-WHITE
 WinterSalmon
 2016.12.19
-Gui
+Cli
 '''
 
 from data.data import Data
 
-class Gui():
+class Cli():
     '''
-    Graphic User Interface for the game
+    Command Line Interface for the game
     '''
     def __init__(self):
         self.game_data = None
