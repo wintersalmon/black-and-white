@@ -82,8 +82,7 @@ def test_board_tile_placing():
     direction = DIRECTION.RIGHT
 
     while True:
-        board_drawer.reset_marker()
-        board_drawer.set_tile_marker(tile, row, col, direction)
+        board_drawer.set_marker(tile, row, col, direction)
         board_drawer.draw_color()
 
         choices = ['U', 'R', 'D', 'L', 'T', 'S', 'E']
@@ -95,11 +94,12 @@ def test_board_tile_placing():
         user_choice = input(' : ')
         if user_choice in choices or user_choice in choices_lower:
             if user_choice == 's' or user_choice == 'S':
-                board.place_tile(tile, row, col, direction)
-                tile = create_random_tile()
-                row = 0
-                col = 0
-                direction = DIRECTION.RIGHT
+                if board.can_place_tile(tile, row, col, direction):
+                    board.place_tile(tile, row, col, direction)
+                    tile = create_random_tile()
+                    row = 0
+                    col = 0
+                    direction = DIRECTION.RIGHT
             if user_choice == 'r' or user_choice == 'R':
                 if col + 1 < max_col:
                     col += 1
