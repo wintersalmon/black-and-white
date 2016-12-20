@@ -9,7 +9,7 @@ Class Description
 from data.board.block import Block
 from data.board.direction import DIRECTION
 from data.board.color import COLOR
-from cli.cls import cls
+from cli.command.clear import clear
 
 
 class BoardDrawer():
@@ -27,7 +27,7 @@ class BoardDrawer():
         '''
         Method Description
         '''
-        cls()
+        clear()
         if self.board:
             for row in range(self.board.get_row_count()):
                 for col in range(self.board.get_col_count()):
@@ -53,7 +53,7 @@ class BoardDrawer():
         '''
         Method Description
         '''
-        cls()
+        clear()
         if self.board:
             for row in range(self.board.get_row_count()):
                 for col in range(self.board.get_col_count()):

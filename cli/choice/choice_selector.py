@@ -7,6 +7,7 @@ Contains ChoiceSelector
 
 
 from cli.choice.choice import Choice
+from cli.command.getch import getch
 
 
 class ChoiceSelector():
@@ -31,6 +32,7 @@ class ChoiceSelector():
         '''
         for choice in self.choices:
             print(choice.get_full_statement(), end=' ')
+        print(' : ')
 
 
     def find_matching_action(self, selection):
@@ -48,8 +50,8 @@ class ChoiceSelector():
         returns choice action that matches user input
         '''
         self.show_full_choices()
-        selction = input(' : ')
-        return self.find_matching_action(selction)
+        selection = getch()
+        return self.find_matching_action(selection)
 
 
     def get_choices(self):

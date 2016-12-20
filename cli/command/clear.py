@@ -7,7 +7,7 @@ Contains Clear Screen Command for cross-platform
 
 import os
 
-def cls():
+def clear():
     '''
     Clear Screen Command for cross-platform
     '''
