@@ -77,19 +77,15 @@ def test_board_tile_placing():
     board = Board(max_row, max_col)
     board_drawer = BoardDrawer(board)
 
-    tile = create_random_tile()
-    row = 0
-    col = 0
-    direction = DIRECTION.RIGHT
-    tile_placement_choices = TilePlacementChoiceSelector()
+    tile_placement_choices = TilePlacementChoiceSelector(board, board_drawer)
 
-    while True:
-        board_drawer.set_marker(tile, row, col, direction)
+    result = False
+    while not result:
         board_drawer.draw_color()
 
         action = tile_placement_choices.choice_user_selection()
         if action:
-            tile, row, col, direction = action(tile, row, col, direction, board)
+            result = action()
 
 
 if __name__ == "__main__":
