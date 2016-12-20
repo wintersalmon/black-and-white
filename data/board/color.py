@@ -16,6 +16,15 @@ class COLOR(AutoNumberEnum):
     GRAY = ()
     BLACK = ()
 
+
+    def __add__(self, other):
+        return COLOR.mix_color(self, other)
+
+
+    def __radd__(self, other):
+        return COLOR.mix_color(self, other)
+
+
     @staticmethod
     def mix_color(src_color, dst_color):
         '''

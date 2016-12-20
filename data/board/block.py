@@ -24,7 +24,7 @@ class Block():
         '''
         Method Description
         '''
-        self.color = COLOR.mix_color(self.color, new_color)
+        self.color = self.color + new_color
 
 class WhiteBlock(Block):
     '''
