@@ -40,6 +40,14 @@ class Choice():
         return self.description + '(' + self.get_all_key_string() + ')'
 
 
+    def get_shortstatement(self):
+        '''
+        returns short statement of Choice
+        example { des="Yes" , key=['Y', 'y'] } -> 'Yes(Y)'
+        '''
+        return self.description + '(' + self.keys[0] + ')'
+
+
     def get_keys(self):
         '''
         returns keys

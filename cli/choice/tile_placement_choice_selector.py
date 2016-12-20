@@ -27,14 +27,14 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         self.col = 0
         self.direction = DIRECTION.RIGHT
 
-        self.add_choice(['C', 'c'], self.action_create_random_tile, 'Create')
+        self.add_choice(['N', 'n'], self.action_create_random_tile, 'Create')
         self.add_choice(['W', 'w'], self.action_move_up, 'Up')
         self.add_choice(['d', 'd'], self.action_move_right, 'Right')
         self.add_choice(['S', 's'], self.action_move_down, 'Down')
         self.add_choice(['A', 'a'], self.action_move_left, 'Left')
         self.add_choice(['R', 'r'], self.action_rotate, 'Rotate')
         self.add_choice(['P', 'p'], self.action_save, 'Place')
-        self.add_choice(['X', 'x'], self.action_exit, 'eXit')
+        self.add_choice(['X', 'x'], self.action_exit, 'Exit')
 
 
     def action_create_random_tile(self):

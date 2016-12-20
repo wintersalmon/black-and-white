@@ -31,7 +31,7 @@ class ChoiceSelector():
         shows full choice list
         '''
         for choice in self.choices:
-            print(choice.get_full_statement(), end=' ')
+            print(choice.get_shortstatement(), end=' ')
         print(' : ')
 
 
