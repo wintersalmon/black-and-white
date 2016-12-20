@@ -27,14 +27,14 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         self.col = 0
         self.direction = DIRECTION.RIGHT
 
-        self.add_choice(['Q', 'q'], self.action_create_random_tile, 'New')
+        self.add_choice(['C', 'c'], self.action_create_random_tile, 'Create')
         self.add_choice(['W', 'w'], self.action_move_up, 'Up')
         self.add_choice(['d', 'd'], self.action_move_right, 'Right')
         self.add_choice(['S', 's'], self.action_move_down, 'Down')
         self.add_choice(['A', 'a'], self.action_move_left, 'Left')
-        self.add_choice(['E', 'e'], self.action_rotate, 'Rotate')
-        self.add_choice(['F', 'f'], self.action_save, 'Save')
-        self.add_choice(['Z', 'z'], self.action_exit, 'Exit')
+        self.add_choice(['R', 'r'], self.action_rotate, 'Rotate')
+        self.add_choice(['P', 'p'], self.action_save, 'Place')
+        self.add_choice(['X', 'x'], self.action_exit, 'eXit')
 
 
     def action_create_random_tile(self):
@@ -63,8 +63,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         action to move up
         '''
-        self.row -= 1
-        self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
+        if self.tile:
+            self.row -= 1
+            self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
         return False
 
 
@@ -72,8 +73,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         action to move up
         '''
-        self.row += 1
-        self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
+        if self.tile:
+            self.row += 1
+            self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
         return False
 
 
@@ -81,8 +83,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         action to move right
         '''
-        self.col += 1
-        self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
+        if self.tile:
+            self.col += 1
+            self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
         return False
 
 
@@ -90,8 +93,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         action to move left
         '''
-        self.col -= 1
-        self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
+        if self.tile:
+            self.col -= 1
+            self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
         return False
 
 
@@ -99,8 +103,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         action to rotate
         '''
-        self.direction = DIRECTION.rotate(self.direction)
-        self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
+        if self.tile:
+            self.direction = DIRECTION.rotate(self.direction)
+            self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
         return False
 
 
