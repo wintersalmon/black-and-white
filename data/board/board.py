@@ -56,7 +56,7 @@ class Board():
             return COLOR.NOCOLOR
 
 
-    def can_place_tile_to(self, tile, row, col, direction):
+    def can_place_tile(self, tile, row, col, direction):
         '''
         Check if the new tile location satisfies every Tile Placement Rule
         '''
@@ -75,7 +75,7 @@ class Board():
         '''
         If possible add tile to specific location [row][col]+direction
         '''
-        if self.can_place_tile_to(tile, row, col, direction):
+        if self.can_place_tile(tile, row, col, direction):
             self.__add_tile(tile, row, col, direction)
             return True
         else:
