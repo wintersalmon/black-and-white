@@ -2,80 +2,112 @@
 BLACK-AND-WHITE
 WinterSalmon
 2016.12.19
-Class Name
+This module contains classes about board
 '''
 # from collections import namedtuple
 from data.board.tile import Tile
 from data.board.block import Block
 from data.board.direction import DIRECTION
+from data.board.color import COLOR
 
 class Board():
     '''
-    Class Description
+    This class contains data about board
     '''
     def __init__(self, row_count, col_count):
         self.row_count = row_count
         self.col_count = col_count
         self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
         self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
+        self.block_counts = [[0 for col in range(self.col_count)] for row in range(self.row_count)]
 
-    def clear(self):
+
+    def get_row_count(self):
         '''
-        Method Description
+        returns board max row count
         '''
-        # del self.tiles[:]
-        # del self.blocks[:]
-        self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
-        self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
+        return self.row_count
+
+
+    def get_col_count(self):
+        '''
+        returns board max column count
+        '''
+        return self.col_count
+
+
+    def get_block_overlap_count(self, row, col):
+        '''
+        returns overlapped block counts located on [row,col]
+        '''
+        if self.__check_row_col_boundary(row, col):
+            return self.block_counts[row][col]
+        else:
+            return -1
+
 
     def get_block_color(self, row, col):
         '''
-        Method Description
+        returns color of the block located on [row,col]
         '''
-        return self.blocks[row][col].get_color()
+        if self.__check_row_col_boundary(row, col):
+            return self.blocks[row][col].get_color()
+        else:
+            return COLOR.NOCOLOR
+
+
+    def can_place_tile_to(self, tile, row, col, direction):
+        '''
+        Check if the new tile location satisfies every Tile Placement Rule
+        '''
+        if not isinstance(tile, Tile):
+            return False
+        if not self.__check_tile_on_board(row, col, direction):
+            return False
+        if not self.__check_tile_overlapping(row, col, direction):
+            return False
+        if not self.__check_tile_adjacent_color(tile, row, col, direction):
+            return False
+        return True
+
 
     def place_tile(self, tile, row, col, direction):
         '''
-        Method Description
+        If possible add tile to specific location [row][col]+direction
         '''
-        # Todo : Verify tile overlap, adjacent color
-        if not isinstance(tile, Tile):
-            return False
-        if not self.is_tile_on_board(row, col, direction):
-            return False
-        if not self.check_tile_adjacent_color(tile, row, col, direction):
+        if self.can_place_tile_to(tile, row, col, direction):
+            self.__add_tile(tile, row, col, direction)
+            return True
+        else:
             return False
 
-        self.__add_tile(tile, row, col, direction)
-
-        return True
 
     def __add_tile(self, tile, row, col, direction):
         '''
-        Method Description
+        Adds Tile to [row][col]+direction
         '''
-        self.tiles[row][col] = tile
+        self.tiles[row][col] = (tile, direction)
 
-        block_one = tile.get_block(0)
-        block_two = tile.get_block(1)
+        first_block = tile.get_block(0)
+        self.__add_block(first_block, row, col)
 
-        color_one = block_one.get_color()
-        color_two = block_two.get_color()
+        second_block = tile.get_block(1)
+        ad_row, ad_col = self.__adjust_row_col_by_direction(row, col, direction)
+        self.__add_block(second_block, ad_row, ad_col)
 
-        self.blocks[row][col].mix_color(color_one)
 
-        if direction == DIRECTION.LEFT:
-            self.blocks[row][col-1].mix_color(color_two)
-        if direction == DIRECTION.RIGHT:
-            self.blocks[row][col+1].mix_color(color_two)
-        if direction == DIRECTION.UP:
-            self.blocks[row-1][col].mix_color(color_two)
-        if direction == DIRECTION.DOWN:
-            self.blocks[row+1][col].mix_color(color_two)
-
-    def is_tile_on_board(self, row, col, direction):
+    def __add_block(self, block, row, col):
         '''
-        Method Description
+        Adds Block to [row][col]
+        '''
+        self.blocks[row][col].mix_color(block.get_color())
+        self.block_counts[row][col] += 1
+
+
+    def __check_tile_on_board(self, row, col, direction):
+        '''
+        Check if the new tile location does not violate Boundary Rule
+        Boundary Rule : tile should be placed with in the board boundary
         '''
         min_row_correction_value = 0
         max_row_correction_value = self.row_count
@@ -98,8 +130,118 @@ class Board():
 
         return True
 
-    def check_tile_adjacent_color(self, tile, row, col, direction):
+
+    def __check_tile_overlapping(self, row, col, direction):
         '''
-        Method Description
+        Check if the new tile location does not violate Overlapping Rule
+        Overlapping Rule : no more then two tiles can overlap in one block
         '''
+        if self.block_counts[row][col] >= 2:
+            return False
+
+        second_row = row
+        second_col = col
+        if direction == DIRECTION.LEFT:
+            second_col -= 1
+        if direction == DIRECTION.RIGHT:
+            second_col += 1
+        if direction == DIRECTION.UP:
+            second_row -= 1
+        if direction == DIRECTION.DOWN:
+            second_row += 1
+
+        if self.block_counts[second_row][second_col] >= 2:
+            return False
+
+        return True
+
+
+    def __check_tile_adjacent_color(self, tile, row, col, direction):
+        '''
+        Check if the new tile location does not violate Adjacent Color Rule
+        Adjacent Color Rule : Black(or Gray) should not be placed adjancet to itself
+        '''
+        block_one_color = tile.get_block(0).get_color()
+        block_two_color = tile.get_block(1).get_color()
+
+        compare_colors = [COLOR.GRAY, COLOR.BLACK]
+
+        if block_one_color in compare_colors:
+            block_one_adjacent_colors = self.__get_adjacent_block_color(row, col)
+            if block_one_color in block_one_adjacent_colors:
+                return False
+
+        if block_two_color in compare_colors:
+            block_two_adjacent_colors = self.__get_adjacent_block_color(row, col, direction)
+            if block_two_color in block_two_adjacent_colors:
+                return False
+
+        return True
+
+
+    def __get_adjacent_block_color(self, row, col, direction=DIRECTION.NODIRECTION):
+        '''
+        returns a list containing adjacent block colors
+        '''
+        adjacent_colors = list()
+
+        if direction != DIRECTION.NODIRECTION:
+            ad_row, ad_col = self.__adjust_row_col_by_direction(row, col, direction)
+            success = self.__check_row_col_boundary(ad_row, ad_col)
+            if success:
+                row = ad_row
+                col = ad_col
+            else:
+                return adjacent_colors
+
+        # GET UP BLOCK
+        if row > 0:
+            color = self.blocks[row-1][col].get_color()
+            adjacent_colors.append(color)
+
+        # GET DOWN BLOCK
+        if row < self.row_count - 1:
+            color = self.blocks[row+1][col].get_color()
+            adjacent_colors.append(color)
+
+        # GET LEFT BLOCK
+        if col > 0:
+            color = self.blocks[row][col-1].get_color()
+            adjacent_colors.append(color)
+
+        # GET RIGHT BLOCK
+        if col < self.col_count -1:
+            color = self.blocks[row][col+1].get_color()
+            adjacent_colors.append(color)
+
+        return adjacent_colors
+
+
+    def __adjust_row_col_by_direction(self, row, col, direction):
+        '''
+        returns (row,col) adjusted by direction
+        '''
+        adjust_row = row
+        adjust_col = col
+
+        if direction == DIRECTION.LEFT:
+            adjust_col -= 1
+        elif direction == DIRECTION.RIGHT:
+            adjust_col += 1
+        elif direction == DIRECTION.UP:
+            adjust_row -= 1
+        elif direction == DIRECTION.DOWN:
+            adjust_row += 1
+
+        return (adjust_row, adjust_col)
+
+
+    def __check_row_col_boundary(self, row, col):
+        '''
+        returns True if [row][col] is inside the board
+        '''
+        if row < 0 or row >= self.row_count:
+            return False
+        if col < 0 or col >= self.col_count:
+            return False
         return True
