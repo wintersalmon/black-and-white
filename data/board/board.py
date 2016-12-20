@@ -4,11 +4,14 @@ WinterSalmon
 2016.12.19
 This module contains classes about board
 '''
+
+
 # from collections import namedtuple
 from data.board.tile import Tile
 from data.board.block import Block
 from data.board.direction import DIRECTION
 from data.board.color import COLOR
+
 
 class Board():
     '''
@@ -92,7 +95,7 @@ class Board():
         self.__add_block(first_block, row, col)
 
         second_block = tile.get_block(1)
-        ad_row, ad_col = self.__adjust_row_col_by_direction(row, col, direction)
+        ad_row, ad_col = DIRECTION.adjust_row_col_by_direction(row, col, direction)
         self.__add_block(second_block, ad_row, ad_col)
 
 
@@ -186,7 +189,7 @@ class Board():
         adjacent_colors = list()
 
         if direction != DIRECTION.NODIRECTION:
-            ad_row, ad_col = self.__adjust_row_col_by_direction(row, col, direction)
+            ad_row, ad_col = DIRECTION.adjust_row_col_by_direction(row, col, direction)
             success = self.__check_row_col_boundary(ad_row, ad_col)
             if success:
                 row = ad_row
@@ -215,25 +218,6 @@ class Board():
             adjacent_colors.append(color)
 
         return adjacent_colors
-
-
-    def __adjust_row_col_by_direction(self, row, col, direction):
-        '''
-        returns (row,col) adjusted by direction
-        '''
-        adjust_row = row
-        adjust_col = col
-
-        if direction == DIRECTION.LEFT:
-            adjust_col -= 1
-        elif direction == DIRECTION.RIGHT:
-            adjust_col += 1
-        elif direction == DIRECTION.UP:
-            adjust_row -= 1
-        elif direction == DIRECTION.DOWN:
-            adjust_row += 1
-
-        return (adjust_row, adjust_col)
 
 
     def __check_row_col_boundary(self, row, col):

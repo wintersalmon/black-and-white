@@ -20,16 +20,11 @@ class Block():
         '''
         return self.color
 
-    def mix_color(self, mix_color):
+    def mix_color(self, new_color):
         '''
         Method Description
         '''
-        if self.color == COLOR.BLACK or mix_color == COLOR.BLACK:
-            self.color = COLOR.BLACK
-        elif self.color == COLOR.GRAY or mix_color == COLOR.GRAY:
-            self.color = COLOR.GRAY
-        else:
-            self.color = COLOR.WHITE
+        self.color = COLOR.mix_color(self.color, new_color)
 
 class WhiteBlock(Block):
     '''
