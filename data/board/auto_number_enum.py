@@ -3,7 +3,6 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-2016.12.19
 AutoNumberEnum
 '''
 

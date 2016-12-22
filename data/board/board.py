@@ -1,7 +1,6 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-2016.12.19
 This module contains classes about board
 '''
 

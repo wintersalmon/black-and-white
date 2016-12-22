@@ -1,7 +1,6 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-2016.12.19
 Contains Clear Screen Command for cross-platform
 '''
 

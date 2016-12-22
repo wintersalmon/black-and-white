@@ -1,7 +1,6 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-2016.12.19
 Contains TilePlacementChoiceSelector
 '''
 
@@ -120,7 +119,9 @@ class TilePlacementChoiceSelector(ChoiceSelector):
             self.col = 0
             self.direction = DIRECTION.RIGHT
             self.board_drawer.reset_marker()
-        return False
+            return True
+        else:
+            return False
 
 
     def action_exit(self):
