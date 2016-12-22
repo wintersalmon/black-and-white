@@ -11,6 +11,8 @@ from cli.choice.tile_placement_choice_selector import TilePlacementChoiceSelecto
 from data.board.board import Board
 from data.board.tile import TileWW, TileWG, TileWB, TileGB
 from data.board.direction import DIRECTION
+from data.event.event import EVENT
+from cli.cmd.clear import clear
 
 
 def create_board_type_one(max_row, max_col):
@@ -78,13 +80,42 @@ def test_board_tile_placing():
 
     tile_placement_choices = TilePlacementChoiceSelector(board, board_drawer)
 
-    result = False
-    while not result:
-        board_drawer.draw_color()
+    # event = None
+    # result = False
+    # while not result:
+    #     board_drawer.draw_color()
+    #     action = tile_placement_choices.choice_user_selection()
+    #     if action:
+    #         result, event = action()
 
-        action = tile_placement_choices.choice_user_selection()
-        if action:
-            result = action()
+    # if event:
+    #     if event.get_code() == EVENT.GAME_OVER:
+    #         print('exit')
+    #         exit()
+    #     else:
+    #         des = event.get_description()
+    #         print(des)
+
+    event = None
+    while True:
+        clear()
+
+        if event:
+            des = event.get_description()
+            print(des)
+            if event.get_code() == EVENT.GAME_OVER:
+                exit()
+            # if event.get_code() == EVENT.TILE_PLACEMENT:
+            #     exit()
+
+        result = False
+        while not result:
+            # clear()
+            board_drawer.draw_color()
+            action = tile_placement_choices.choice_user_selection()
+            if action:
+                result, event = action()
+
 
 
 if __name__ == "__main__":

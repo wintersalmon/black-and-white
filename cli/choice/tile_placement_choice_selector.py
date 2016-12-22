@@ -10,6 +10,9 @@ import random
 from cli.choice.choice_selector import ChoiceSelector
 from data.board.tile import TileWW, TileWG, TileWB, TileGB
 from data.board.direction import DIRECTION
+from data.event.tile_placement_event import TilePlacementEvent
+from data.event.game_over_event import GameOverEvent
+
 
 class TilePlacementChoiceSelector(ChoiceSelector):
     '''
@@ -57,6 +60,8 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         self.direction = DIRECTION.RIGHT
         self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
 
+        return False, None
+
 
     def action_move_up(self):
         '''
@@ -65,7 +70,7 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         if self.tile:
             self.row -= 1
             self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
-        return False
+        return False, None
 
 
     def action_move_down(self):
@@ -75,7 +80,7 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         if self.tile:
             self.row += 1
             self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
-        return False
+        return False, None
 
 
     def action_move_right(self):
@@ -85,7 +90,7 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         if self.tile:
             self.col += 1
             self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
-        return False
+        return False, None
 
 
     def action_move_left(self):
@@ -95,7 +100,7 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         if self.tile:
             self.col -= 1
             self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
-        return False
+        return False, None
 
 
     def action_rotate(self):
@@ -105,7 +110,7 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         if self.tile:
             self.direction = DIRECTION.rotate(self.direction)
             self.board_drawer.set_marker(self.tile, self.row, self.col, self.direction)
-        return False
+        return False, None
 
 
     def action_save(self):
@@ -114,18 +119,27 @@ class TilePlacementChoiceSelector(ChoiceSelector):
         '''
         if self.tile and self.board.can_place_tile(self.tile, self.row, self.col, self.direction):
             self.board.place_tile(self.tile, self.row, self.col, self.direction)
+
+            args = dict()
+            args['player'] = 0
+            args['row'] = self.row
+            args['col'] = self.col
+            args['dir'] = self.direction
+            event = TilePlacementEvent(args)
+
             self.tile = None
             self.row = 0
             self.col = 0
             self.direction = DIRECTION.RIGHT
             self.board_drawer.reset_marker()
-            return True
+
+            return True, event
         else:
-            return False
+            return False, None
 
 
     def action_exit(self):
         '''
         action to rotate
         '''
-        return True
+        return True, GameOverEvent()

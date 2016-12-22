@@ -13,11 +13,13 @@ class Event():
     Used to represent an event happend in game
     '''
 
-    DES_HEADER_FORMAT = 'Event[{}] : '
+    DES_HEADER_FORMAT = 'E[{}] : '
 
     def __init__(self, code, args):
+        if not isinstance(code, EVENT):
+            raise ValueError("Event argument 'code' MUST BE 'EVENT' TYPE")
         if not isinstance(args, dict):
-            raise ValueError("Event args argument MUST BE DICT TYPE")
+            raise ValueError("Event argument 'args' MUST BE 'Dict' TYPE")
         self.code = code
         self.args = args
 
@@ -33,7 +35,7 @@ class Event():
         '''
         returns event description header
         '''
-        return Event.DES_HEADER_FORMAT.format(self.code)
+        return Event.DES_HEADER_FORMAT.format(self.code.name)
 
 
     def get_description_detail(self):
@@ -47,7 +49,7 @@ class Event():
         '''
         returns event description string
         '''
-        return self.get_description_header() + self.get_description_body()
+        return self.get_description_header() + self.get_description_detail()
 
 
     def get_args(self):
@@ -58,9 +60,10 @@ class Event():
 
 
 
-class EventCode(AutoNumberEnum):
+class EVENT(AutoNumberEnum):
     '''
     Event Code used to identify event
     '''
     NOEVENT = ()
+    GAME_OVER = ()
     TILE_PLACEMENT = ()
