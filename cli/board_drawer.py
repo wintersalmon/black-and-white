@@ -9,7 +9,7 @@ Class Description
 from data.board.block import Block
 from data.board.direction import DIRECTION
 from data.board.color import COLOR
-from cli.command.clear import clear
+from cli.cmd.clear import clear
 
 
 class BoardDrawer():

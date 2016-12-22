@@ -7,7 +7,7 @@ Contains ChoiceSelector
 
 
 from cli.choice.choice import Choice
-from cli.command.getch import getch
+from cli.cmd.getch import getch
 
 
 class ChoiceSelector():
