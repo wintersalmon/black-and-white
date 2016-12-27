@@ -11,14 +11,25 @@ from data.board.block import Block
 from data.board.direction import DIRECTION
 from data.board.color import COLOR
 
+from data.board.board_interface import BoardInterface
 
-class Board():
+
+class Board(BoardInterface):
     '''
     This class contains data about board
     '''
     def __init__(self, row_count, col_count):
         self.row_count = row_count
         self.col_count = col_count
+        self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
+        self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
+        self.block_counts = [[0 for col in range(self.col_count)] for row in range(self.row_count)]
+
+
+    def clear_board(self):
+        '''
+        Clear all tile on Board
+        '''
         self.tiles = [[None for col in range(self.col_count)] for row in range(self.row_count)]
         self.blocks = [[Block() for col in range(self.col_count)] for row in range(self.row_count)]
         self.block_counts = [[0 for col in range(self.col_count)] for row in range(self.row_count)]
@@ -42,20 +53,20 @@ class Board():
         '''
         returns overlapped block counts located on [row,col]
         '''
-        if self.__check_row_col_boundary(row, col):
+        if self.check_row_col_boundary(row, col):
             return self.block_counts[row][col]
         else:
-            return -1
+            return None
 
 
     def get_block_color(self, row, col):
         '''
         returns color of the block located on [row,col]
         '''
-        if self.__check_row_col_boundary(row, col):
+        if self.check_row_col_boundary(row, col):
             return self.blocks[row][col].get_color()
         else:
-            return COLOR.NOCOLOR
+            return None
 
 
     def can_place_tile(self, tile, row, col, direction):
@@ -64,7 +75,7 @@ class Board():
         '''
         if not isinstance(tile, Tile):
             return False
-        if not self.__check_tile_on_board(row, col, direction):
+        if not self.check_tile_is_on_board(row, col, direction):
             return False
         if not self.__check_tile_overlapping(row, col, direction):
             return False
@@ -106,7 +117,7 @@ class Board():
         self.block_counts[row][col] += 1
 
 
-    def __check_tile_on_board(self, row, col, direction):
+    def check_tile_is_on_board(self, row, col, direction):
         '''
         Check if the new tile location does not violate Boundary Rule
         Boundary Rule : tile should be placed with in the board boundary
@@ -189,7 +200,7 @@ class Board():
 
         if direction != DIRECTION.NODIRECTION:
             ad_row, ad_col = DIRECTION.adjust_row_col_by_direction(row, col, direction)
-            success = self.__check_row_col_boundary(ad_row, ad_col)
+            success = self.check_row_col_boundary(ad_row, ad_col)
             if success:
                 row = ad_row
                 col = ad_col
@@ -219,7 +230,7 @@ class Board():
         return adjacent_colors
 
 
-    def __check_row_col_boundary(self, row, col):
+    def check_row_col_boundary(self, row, col):
         '''
         returns True if [row][col] is inside the board
         '''

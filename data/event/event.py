@@ -5,7 +5,7 @@ Contains Event Class
 '''
 
 
-from data.board.auto_number_enum import AutoNumberEnum
+from data.util.auto_number_enum import AutoNumberEnum
 
 
 class Event():
