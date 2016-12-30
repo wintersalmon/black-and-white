@@ -120,6 +120,15 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
 
 
 
+# Implemented PlayerInterface
+    def get_selected_tile(self):
+        '''
+        get_selected_tile
+        '''
+        if self.player:
+            return self.player.get_selected_tile()
+        return None
+
     # Implemented PlayerInterface
     def get_color_pattern(self):
         '''
@@ -153,7 +162,7 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
         get_tile
         '''
         if self.player:
-            return self.player.get_tile()
+            return self.player.get_tile(index)
         return None
 
     # Implemented PlayerInterface

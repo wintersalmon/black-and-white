@@ -29,7 +29,7 @@ class TilePlacementHelper(BoardInterface, PieceMovementHelper):
         '''
         change selected tile
         '''
-        tile = self.player.get_tile(number)
+        tile = self.player.select_tile(number)
         if tile:
             self.tile = tile
             return True
@@ -154,7 +154,7 @@ class TilePlacementHelper(BoardInterface, PieceMovementHelper):
         col = 0
         direction = DIRECTION.RIGHT
         if isinstance(tile, Tile) and self.board.check_tile_is_on_board(row, col, direction):
-            self.tile = tile
+            self.tile = self.player.select_tile(0)
             self.row = row
             self.col = col
             self.direction = direction

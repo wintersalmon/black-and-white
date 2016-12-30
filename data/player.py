@@ -13,6 +13,15 @@ class PlayerInterface():
     '''
     PlayerInterface
     '''
+
+
+    def get_selected_tile(self):
+        '''
+        get_selected_tile
+        '''
+        raise NotImplementedError('You need to implement get_selected_tile')
+
+
     def get_color_pattern(self):
         '''
         get_color_pattern
@@ -92,6 +101,13 @@ class Player(PlayerInterface):
         self.selected_tile = None
 
 
+    def get_selected_tile(self):
+        '''
+        returns selected tile numbers
+        '''
+        return self.selected_tile
+
+
     def get_color_pattern(self):
         '''
         get color pattern
@@ -152,12 +168,21 @@ class Player(PlayerInterface):
         self.tiles = list(filter((tile).__ne__, self.tiles))
 
 
+    def select_tile(self, index):
+        '''
+        returns and select tile
+        '''
+        tile = self.get_tile(index)
+        if tile:
+            self.selected_tile = self.tiles[index]
+        return tile
+
+
     def get_tile(self, index):
         '''
         returns tile to Player
         '''
         if 0 <= index < len(self.tiles):
-            self.selected_tile = self.tiles[index]
             return self.tiles[index]
         else:
             return None
