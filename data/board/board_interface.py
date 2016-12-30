@@ -13,25 +13,25 @@ class BoardInterface():
         '''
         returns board max row count
         '''
-        raise NotImplementedError('You need to implement set_item')
+        raise NotImplementedError('You need to implement set_piece')
 
 
     def get_col_count(self):
         '''
         returns board max column count
         '''
-        raise NotImplementedError('You need to implement set_item')
+        raise NotImplementedError('You need to implement set_piece')
 
 
     def get_block_overlap_count(self, row, col):
         '''
         returns overlapped block counts located on [row,col]
         '''
-        raise NotImplementedError('You need to implement set_item')
+        raise NotImplementedError('You need to implement set_piece')
 
 
     def get_block_color(self, row, col):
         '''
         returns color of the block located on [row,col]
         '''
-        raise NotImplementedError('You need to implement set_item')
+        raise NotImplementedError('You need to implement set_piece')

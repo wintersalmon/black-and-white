@@ -19,3 +19,4 @@ class STATUS(AutoNumberEnum):
     PLAYER_MOVEMENT = ()
     FINISHED_PLAYER_MOVEMENT = ()
     ROUND_OVER = ()
+    PLAYER_CHANGE_PATTERN = ()

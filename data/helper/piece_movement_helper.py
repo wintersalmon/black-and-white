@@ -1,15 +1,15 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-Contains MovementHelperInterface
+Contains PieceMovementHelper
 '''
 
 
-class MovementHelperInterface():
+class PieceMovementHelper():
     '''
-    Interface used to help user moving item on board correctly
-    Starts with set_item(item) : True
-    Ends with save_item() : True
+    Interface used to help user moving piece on board correctly
+    Starts with set_piece(piece) : True
+    Ends with save_piece() : True
     '''
     def clear_marker(self):
         '''
@@ -27,90 +27,90 @@ class MovementHelperInterface():
 
     def get_cur_row(self):
         '''
-        returns current item row position
+        returns current piece row position
         '''
         raise NotImplementedError('You need to implement get_cur_row')
 
 
     def get_cur_col(self):
         '''
-        returns current item col position
+        returns current piece col position
         '''
         raise NotImplementedError('You need to implement get_cur_col')
 
 
     def get_cur_direction(self):
         '''
-        returns current item dirercion
+        returns current piece dirercion
         '''
         raise NotImplementedError('You need to implement get_cur_direction')
 
 
-    def set_item(self, item, row, col, direction):
+    def set_piece(self, piece):
         '''
-        set item to move
+        set piece to move
         '''
-        raise NotImplementedError('You need to implement set_item')
+        raise NotImplementedError('You need to implement set_piece')
 
 
-    def get_item(self):
+    def get_piece(self):
         '''
-        returns current item
+        returns current piece
         '''
-        raise NotImplementedError('You need to implement get_item')
+        raise NotImplementedError('You need to implement get_piece')
 
 
-    def can_save_item(self):
+    def can_save_piece(self):
         '''
-        returns True if current item can be saved
+        returns True if current piece can be saved
         '''
-        raise NotImplementedError('You need to implement can_save_item')
+        raise NotImplementedError('You need to implement can_save_piece')
 
 
-    def save_item(self):
+    def save_piece(self):
         '''
-        save current item
+        save current piece
         '''
-        raise NotImplementedError('You need to implement save_item')
+        raise NotImplementedError('You need to implement save_piece')
 
 
     def move_up(self):
         '''
-        move current item up
+        move current piece up
         '''
         raise NotImplementedError('You need to implement move_up')
 
 
     def move_down(self):
         '''
-        move current item down
+        move current piece down
         '''
         raise NotImplementedError('You need to implement move_down')
 
 
     def move_right(self):
         '''
-        move current item right
+        move current piece right
         '''
         raise NotImplementedError('You need to implement move_right')
 
 
     def move_left(self):
         '''
-        move current item left
+        move current piece left
         '''
         raise NotImplementedError('You need to implement move_left')
 
 
     def rotate_clockwise(self):
         '''
-        rotate current item clockwise (90 degrees)
+        rotate current piece clockwise (90 degrees)
         '''
         raise NotImplementedError('You need to implement rotate_clockwise')
 
 
     def rotate_counter_clockwise(self):
         '''
-        rotate current item counter clockwise (270 degrees)
+        rotate current piece counter clockwise (270 degrees)
         '''
         raise NotImplementedError('You need to implement rotate_counter_clockwise')

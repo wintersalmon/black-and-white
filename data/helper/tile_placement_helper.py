@@ -9,22 +9,35 @@ from data.board.tile import Tile
 from data.board.board_interface import BoardInterface
 from data.board.direction import DIRECTION
 
-from data.helper.movement_helper_interface import MovementHelperInterface
+from data.helper.piece_movement_helper import PieceMovementHelper
 
 
-class TilePlacementHelper(BoardInterface, MovementHelperInterface):
+class TilePlacementHelper(BoardInterface, PieceMovementHelper):
     '''
     Helps user move tile to appropriate position on board
     '''
     def __init__(self, board):
         self.board = board
+        self.player = None
         self.tile = None
         self.row = 0
         self.col = 0
         self.direction = DIRECTION.RIGHT
 
 
-    # Implement BoardInterface get_row_count
+    def select_tile(self, number):
+        '''
+        change selected tile
+        '''
+        tile = self.player.get_tile(number)
+        if tile:
+            self.tile = tile
+            return True
+        else:
+            return False
+
+
+    # Implemented BoardInterface get_row_count
     def get_row_count(self):
         '''
         returns board max row count
@@ -32,7 +45,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return self.board.get_row_count()
 
 
-    # Implement BoardInterface get_col_count
+    # Implemented BoardInterface get_col_count
     def get_col_count(self):
         '''
         returns board max col count
@@ -40,7 +53,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return self.board.get_col_count()
 
 
-    # Implement BoardInterface get_block_overlap_count
+    # Implemented BoardInterface get_block_overlap_count
     def get_block_overlap_count(self, row, col):
         '''
         returns overlapped block counts located on [row,col]
@@ -60,7 +73,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return count
 
 
-    # Implement BoardInterface get_block_color
+    # Implemented BoardInterface get_block_color
     def get_block_color(self, row, col):
         '''
         returns color of the block located on [row,col]
@@ -80,7 +93,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return color
 
 
-    # Implement MovementHelperInterface clear_marker
+    # Implemented PieceMovementHelper clear_marker
     def clear_marker(self):
         '''
         clear tile marker
@@ -91,7 +104,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         self.direction = DIRECTION.RIGHT
 
 
-    # Implement MovementHelperInterface is_marked_block
+    # Implemented PieceMovementHelper is_marked_block
     def is_marked_block(self, row, col):
         '''
         returns true if the position is marked
@@ -106,7 +119,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return False
 
 
-    # Implement MovementHelperInterface get_cur_row
+    # Implemented PieceMovementHelper get_cur_row
     def get_cur_row(self):
         '''
         returns current tile row position
@@ -114,7 +127,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return self.row
 
 
-    # Implement MovementHelperInterface get_cur_col
+    # Implemented PieceMovementHelper get_cur_col
     def get_cur_col(self):
         '''
         returns current tile col position
@@ -122,7 +135,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return self.col
 
 
-    # Implement MovementHelperInterface get_cur_direction
+    # Implemented PieceMovementHelper get_cur_direction
     def get_cur_direction(self):
         '''
         returns current tile dirercion
@@ -130,11 +143,16 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
         return self.direction
 
 
-    # Implement MovementHelperInterface set_item
-    def set_item(self, tile, row=0, col=0, direction=DIRECTION.RIGHT):
+    # Implemented PieceMovementHelper set_piece
+    def set_piece(self, player):
         '''
         set tile to move
         '''
+        self.player = player
+        tile = self.player.get_tile(0)
+        row = 0
+        col = 0
+        direction = DIRECTION.RIGHT
         if isinstance(tile, Tile) and self.board.check_tile_is_on_board(row, col, direction):
             self.tile = tile
             self.row = row
@@ -145,16 +163,16 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface get_item
-    def get_item(self):
+    # Implemented PieceMovementHelper get_piece
+    def get_piece(self):
         '''
         returns current tile
         '''
         return self.tile
 
 
-    # Implement MovementHelperInterface can_save_item
-    def can_save_item(self):
+    # Implemented PieceMovementHelper can_save_piece
+    def can_save_piece(self):
         '''
         returns True if current tile can be saved
         '''
@@ -164,22 +182,23 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface save_item
-    def save_item(self):
+    # Implemented PieceMovementHelper save_piece
+    def save_piece(self):
         '''
         save current tile position and place it on board
         '''
-        if self.can_save_item():
+        if self.can_save_piece():
             self.board.place_tile(self.tile, self.row, self.col, self.direction)
+            self.player.remove_tile(self.tile)
             return True
         else:
             return False
 
 
-    # Implement MovementHelperInterface move_up
+    # Implemented PieceMovementHelper move_up
     def move_up(self):
         '''
-        move current tile up
+        move current piece up
         '''
         move_row = self.row - 1
         if self.tile and self.board.check_tile_is_on_board(move_row, self.col, self.direction):
@@ -189,7 +208,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface move_down
+    # Implemented PieceMovementHelper move_down
     def move_down(self):
         '''
         move current tile down
@@ -202,7 +221,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface move_right
+    # Implemented PieceMovementHelper move_right
     def move_right(self):
         '''
         move current tile right
@@ -215,7 +234,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface move_left
+    # Implemented PieceMovementHelper move_left
     def move_left(self):
         '''
         move current item left
@@ -228,7 +247,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface rotate_clockwise
+    # Implemented PieceMovementHelper rotate_clockwise
     def rotate_clockwise(self):
         '''
         rotate current tile clockwise (90 degrees)
@@ -241,7 +260,7 @@ class TilePlacementHelper(BoardInterface, MovementHelperInterface):
             return False
 
 
-    # Implement MovementHelperInterface rotate_counter_clockwise
+    # Implemented PieceMovementHelper rotate_counter_clockwise
     def rotate_counter_clockwise(self):
         '''
         rotate current tile counter clockwise (270 degrees)

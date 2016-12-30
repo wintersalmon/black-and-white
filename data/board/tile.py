@@ -5,6 +5,17 @@ Class Name
 '''
 
 from data.board.block import WhiteBlock, GrayBlock, BlackBlock
+from data.util.auto_number_enum import AutoNumberEnum
+
+class TILE(AutoNumberEnum):
+    '''
+    Tile Type Enum
+    '''
+    NONE = ()
+    WW = ()
+    WG = ()
+    WB = ()
+    GB = ()
 
 class Tile():
     '''
@@ -12,6 +23,15 @@ class Tile():
     '''
     def __init__(self):
         self.blocks = list()
+        self.tile_type = TILE.NONE
+
+
+    def get_type(self):
+        '''
+        returns tile type(TILE)
+        '''
+        return self.tile_type
+
 
     def get_block(self, pos):
         '''
@@ -36,6 +56,7 @@ class TileWW(Tile):
         super().__init__()
         self.blocks.append(WhiteBlock())
         self.blocks.append(WhiteBlock())
+        self.tile_type = TILE.WW
 
 class TileWG(Tile):
     '''
@@ -45,6 +66,7 @@ class TileWG(Tile):
         super().__init__()
         self.blocks.append(WhiteBlock())
         self.blocks.append(GrayBlock())
+        self.tile_type = TILE.WG
 
 class TileWB(Tile):
     '''
@@ -54,6 +76,7 @@ class TileWB(Tile):
         super().__init__()
         self.blocks.append(WhiteBlock())
         self.blocks.append(BlackBlock())
+        self.tile_type = TILE.WB
 
 class TileGB(Tile):
     '''
@@ -63,3 +86,4 @@ class TileGB(Tile):
         super().__init__()
         self.blocks.append(GrayBlock())
         self.blocks.append(BlackBlock())
+        self.tile_type = TILE.GB

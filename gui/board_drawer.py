@@ -80,24 +80,8 @@ class BoardDrawer():
                     else:
                         self.draw_block(row, col, color)
                         # color_text = color.get_color_text(color)
-                    # print(color_text, end='\t')
-                # print('\n')
         else:
             print('board not initialized')
-
-
-    # def draw_overlap_counter(self):
-    #     '''
-    #     Method Description
-    #     '''
-    #     if self.board:
-    #         for row in range(self.board.get_row_count()):
-    #             for col in range(self.board.get_col_count()):
-    #                 counter = self.board.get_block_overlap_count(row, col)
-    #                 print(counter, end='\t')
-    #             print('\n')
-    #     else:
-    #         print('board not initialized')
 
 
     def reset_marker(self):
