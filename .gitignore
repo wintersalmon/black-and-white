@@ -5,3 +5,6 @@ ____pycache__/*
 # visual studio code files
 .vscode/*
 
+# pycharm settings
+.idea/*
+

@@ -5,9 +5,9 @@ PatternUpdateHelper
 '''
 
 
-from data.pattern.color_pattern import ColorPattern
-from data.player import Player, PlayerInterface
-from data.helper.player_update_helper import PlayerUpdateHelper
+from game.pattern.color_pattern import ColorPattern
+from game.player import Player, PlayerInterface
+from game.helper.player_update_helper import PlayerUpdateHelper
 
 
 class PatternUpdateHelper(PlayerInterface, PlayerUpdateHelper):

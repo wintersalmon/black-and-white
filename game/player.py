@@ -5,8 +5,8 @@ Player
 '''
 
 
-from data.board.tile import Tile
-from data.pattern.color_pattern import ColorPattern
+from game.board.tile import Tile
+from game.pattern.color_pattern import ColorPattern
 
 
 class PlayerInterface():

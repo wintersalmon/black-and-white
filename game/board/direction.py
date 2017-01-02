@@ -4,7 +4,7 @@ WinterSalmon
 Class Name
 '''
 
-from data.util.auto_number_enum import AutoNumberEnum
+from game.util.auto_number_enum import AutoNumberEnum
 
 class DIRECTION(AutoNumberEnum):
     '''

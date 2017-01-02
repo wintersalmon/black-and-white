@@ -5,11 +5,11 @@ Contains TilePlacementHelper
 '''
 
 
-from data.board.tile import Tile
-from data.board.board_interface import BoardInterface
-from data.board.direction import DIRECTION
+from game.board.tile import Tile
+from game.board.board_interface import BoardInterface
+from game.board.direction import DIRECTION
 
-from data.helper.piece_movement_helper import PieceMovementHelper
+from game.helper.piece_movement_helper import PieceMovementHelper
 
 
 class TilePlacementHelper(BoardInterface, PieceMovementHelper):

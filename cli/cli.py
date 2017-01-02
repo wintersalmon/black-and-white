@@ -4,23 +4,23 @@ WinterSalmon
 Cli
 '''
 
-from data.data import Data
+from game.game import Game
 
 class Cli():
     '''
     Command Line Interface for the game
     '''
     def __init__(self):
-        self.game_data = None
+        self.game_Game = None
 
-    def start(self, game_data):
+    def start(self, game_Game):
         '''
-        init with game data and start the game
+        init with game Game and start the game
         '''
-        if isinstance(game_data, Data):
-            self.game_data = game_data
+        if isinstance(game_Game, Game):
+            self.game_Game = game_Game
         else:
-            self.game_data = None
+            self.game_Game = None
 
     def next(self):
         '''

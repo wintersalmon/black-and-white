@@ -6,7 +6,7 @@ Contains TileDeck
 
 import random
 
-from data.board.tile import TileWW, TileWG, TileWB, TileGB
+from game.board.tile import TileWW, TileWG, TileWB, TileGB
 
 
 class TileDeck():
@@ -70,4 +70,7 @@ class TileDeck():
         '''
         draw tile from deck
         '''
-        return self.tiles.pop()
+        if self.size() > 0:
+            return self.tiles.pop()
+        else:
+            return None

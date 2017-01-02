@@ -8,26 +8,25 @@ import random
 
 import pygame
 from pygame.locals import *
-from data.data import Data
-from data.board.color import COLOR
-from data.board.direction import DIRECTION
-from data.board.tile import TileWW, TileWG, TileWB, TileGB, TILE
+from game.game import Game
+from game.board.color import COLOR
+from game.board.direction import DIRECTION
+from game.board.tile import TileWW, TileWG, TileWB, TileGB, TILE
 
-from data.board.board import Board
+from game.board.board import Board
 
 from cli.choice.tile_placement_choice_selector import TilePlacementChoiceSelector
 
 from gui.board_drawer import BoardDrawer
-from data.helper.tile_placement_helper import TilePlacementHelper
-from data.helper.player_movement_helper import PlayerMovementHelper
-from data.helper.pattern_update_helper import PatternUpdateHelper
+from game.helper.tile_placement_helper import TilePlacementHelper
+from game.helper.player_movement_helper import PlayerMovementHelper
+from game.helper.pattern_update_helper import PatternUpdateHelper
 
-from data.status.status import STATUS
+from game.status.status import STATUS
 
-from data.player import Player
+from game.player import Player
 
-from data.pattern.color_pattern import ColorPattern
-
+from game.pattern.color_pattern import ColorPattern
 
 
 FPS = 30 # frames per second, the general speed of the program
@@ -38,11 +37,11 @@ TILESIZE = 40 # size of tile height & width in pixels
 TILEMARGIN = 10 # size of tile margin between tiles in pixels
 TILEBOARDERSIZE = 2 # size of tile boarder in pixels
 
-BOARDWIDTH = 12 # number of columns of icons
-BOARDHEIGHT = 5 # number of rows of icons
+MAX_COL = 12 # number of columns of icons
+MAX_ROW = 5 # number of rows of icons
 
-XMARGIN = int((WINDOWWIDTH - (BOARDWIDTH * (TILESIZE + TILEMARGIN))) / 2)
-YMARGIN = int((WINDOWHEIGHT - (BOARDHEIGHT * (TILESIZE + TILEMARGIN))) / 2)
+XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
+YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
 
 #            R    G    B
 WHITE    = (255, 255, 255)
@@ -87,44 +86,22 @@ class Gui():
         self.last_action_msg = None
 
 
-    # def check_game_over(self):
-    #     '''
-    #     Stop Game if Game Over
-    #     '''
-    #     if False:
-    #         pygame.quit()
-    #         sys.exit()
-    #     return
-
-
-    # def main_loop(self):
-    #     '''
-    #     game main loop
-    #     '''
-    #     continue_loop = True
-    #     while continue_loop:
-    #         self.draw_board()
-
-    #         for event in pygame.event.get(): # event handling loop
-    #             if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
-    #                 pygame.quit()
-    #                 sys.exit()
-    #             if event.type == KEYDOWN:
-    #                 if self.game.status == STATUS.PLAYER_CHANGE_PATTERN:
-    #                     continue_loop = self.handle_change_pattern_event(event)
-    #                 elif self.game.status == STATUS.TILE_PLACEMENT:
-    #                     continue_loop = self.handle_tile_placement_event(event)
-    #                 else:
-    #                     continue_loop = self.handle_player_movement_event(event)
-
-    #         pygame.display.update()
-    #         FPSCLOCK.tick(FPS)
-    #     return
-
-
-    def start(self):
+    def init(self):
         '''
-        Start Game
+        displays game init screen and handles event
+        '''
+
+
+    def credit(self):
+        '''
+        displays game credit screen and handles event
+        '''
+        pass
+
+
+    def run(self):
+        '''
+        displays main game screen and handles event
         '''
         # init pygame
         global FPSCLOCK, DISPLAYSURF, BASICFONT
@@ -134,119 +111,128 @@ class Gui():
         DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
         DISPLAYSURF.fill(BGCOLOR)
 
-        # init game data
-        self.game = Data()
-        max_row = BOARDHEIGHT
-        max_col = BOARDWIDTH
-        board = Board(max_row, max_col)
+        # init game Game
+        self.game = Game()
+        player_names = ['WinterSalmon', 'Kein', 'Sshong91', 'Wool']
+        self.game.init_game(player_names, MAX_ROW, MAX_COL)
 
-        self.players = list()
-        self.players.append(Player(1, 'WinterSalmon'))
-        self.players.append(Player(2, 'Kein'))
-        self.players.append(Player(3, 'Sshong91'))
-        self.players.append(Player(4, 'Wool'))
-
-
-        self.game.start(board, self.players)
-
-        self.current_board_helper = None
-        self.current_player_helper = self.game.pattern_update_helper
-
-        while self.game.update_status():
+        while not self.game.is_game_over():
             self.draw(self.game)
-            # print(self.game.status.name)
+            self.status = self.game.get_current_status()
 
-            for event in pygame.event.get(): # event handling loop
+            for event in pygame.event.get():
                 if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
                     pygame.quit()
                     sys.exit()
-                if event.type == KEYDOWN:
-                    if self.game.status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
-                        self.game.continue_status = self.handle_change_pattern_event(event)
 
-                    elif self.game.status == STATUS.TILE_PLACEMENT:
-                        self.game.continue_status = self.handle_tile_placement_event(event)
+                elif self.status == STATUS.TILE_PLACEMENT:
+                    self.game.continue_status = self.handle_tile_placement_event(event)
 
-                    elif self.game.status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
-                        self.game.continue_status = self.handle_set_start_point_event(event)
+                elif self.status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+                    self.game.continue_status = self.handle_change_pattern_event(event)
 
-                    elif self.game.status == STATUS.PLAYER_MOVEMENT:
-                        self.game.continue_status = self.handle_player_movement_event(event)
+                elif self.status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
+                    self.game.continue_status = self.handle_set_start_point_event(event)
 
+                elif self.status == STATUS.PLAYER_MOVEMENT:
+                    self.game.continue_status = self.handle_player_movement_event(event)
+
+
+            self.game.update()
             pygame.display.update()
             FPSCLOCK.tick(FPS)
-
-
-        # while True:
-        #     # give 3 card to each player
-        #     for player in self.game.players:
-        #         for _ in range(3):
-        #             if self.game.deck.size() > 0:
-        #                 tile = self.game.deck.draw()
-        #                 player.add_tile(tile)
-
-        #     # for each player place tile
-        #     for _ in range(1):
-        #         for _ in self.game.players:
-        #             self.game.next_player()
-        #             self.game.change_status(STATUS.TILE_PLACEMENT)
-        #             self.main_loop()
-        #             self.check_game_over()
-
-        #     # move each player once
-        #     for _ in range(1):
-        #         for player in self.game.players:
-        #             self.game.next_player()
-        #             self.game.change_status(STATUS.PLAYER_MOVEMENT)
-        #             self.main_loop()
-        #             self.check_game_over()
-        # return
-
 
 
     def draw(self, game):
         '''
         draw game
         '''
-        self.draw_board()
+        self.draw_board(game.get_current_board())
+        self.draw_player(game.get_current_player())
+        self.draw_message(game.get_current_message())
 
-    def left_top_coords_of_box(self, col, row):
+
+    def draw_board(self, board):
         '''
-        docstring
+        Draw board
         '''
-        # Convert board coordinates to pixel coordinates
-        left = col * (TILESIZE + TILEMARGIN) + XMARGIN
-        top = row * (TILESIZE + TILEMARGIN) + YMARGIN
-        return (left, top)
+        if not board:
+            return
+        DISPLAYSURF.fill(BGCOLOR)
+        for row in range(self.game.board.get_row_count()):
+            for col in range(self.game.board.get_col_count()):
+                self.draw_block(board, row, col)
 
 
-    def draw_message(self):
+    def draw_block(self, board, row, col):
         '''
-        Draw Last Event Message To Screen
+        Draw block
         '''
-        message_format = '{} : {}'
-        status_string = 'no status'
-        last_action_msg = 'no actions'
+        left, top = self.left_top_coords_of_box(col, row)
 
-        if self.game.status:
-            status_string = self.game.status.name
+        # player = self.get_current_player()
 
-        if self.last_action_msg:
-            last_action_msg = self.last_action_msg
+        block_count = board.get_block_overlap_count(row, col)
+        block_color = board.get_block_color(row, col)
 
-        message = message_format.format(status_string, last_action_msg)
-        pressKeySurf = BASICFONT.render(message, True, WHITE)
-        pressKeyRect = pressKeySurf.get_rect()
-        pressKeyRect.topleft = (XMARGIN, WINDOWHEIGHT - YMARGIN + 10)
-        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
+        #fill rect
+        if block_color == COLOR.WHITE:
+            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE))
+        elif block_color == COLOR.GRAY:
+            pygame.draw.rect(DISPLAYSURF, GRAY, (left, top, TILESIZE, TILESIZE))
+        elif block_color == COLOR.BLACK:
+            pygame.draw.rect(DISPLAYSURF, BLACK, (left, top, TILESIZE, TILESIZE))
 
-    def draw_player(self):
+        # draw outline
+        if block_count == 0:
+            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+        elif block_count == 2:
+            pygame.draw.rect(DISPLAYSURF, GREEN, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+        elif block_count > 2:
+            pygame.draw.rect(DISPLAYSURF, RED, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+
+
+        # draw current marker boarder
+        if (not isinstance(board, Board)) and board.is_marked_block(row, col):
+            number = self.game.current_player.get_number()
+            player_color = PLAYER_COLORS[number - 1]
+            pygame.draw.rect(DISPLAYSURF, player_color, (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
+
+        # todo : seperate draw_player_on_board
+
+        # draw players
+        # for player in self.game.players:
+        #     p_margin = 2
+        #     p_size = TILESIZE / 2 - p_margin * 2
+        #     p_left = left + p_margin
+        #     p_top = top + p_margin
+        #     p_width = p_size
+        #     p_height = p_size
+
+        #     p_row, p_col = player.get_position()
+        #     if (p_row, p_col) == (row, col):
+        #         number = player.get_number()
+
+        #         player_color = PLAYER_COLORS[number-1]
+
+        #         if number == 1:
+        #             pass
+        #         if number == 2:
+        #             p_left += p_width + p_margin * 2
+        #         if number == 3:
+        #             p_top += p_height + p_margin * 2
+        #         if number == 4:
+        #             p_left += p_width + p_margin * 2
+        #             p_top += p_height + p_margin * 2
+
+        #         pygame.draw.rect(DISPLAYSURF, player_color, (p_left, p_top, p_width, p_height))
+
+
+    def draw_player(self, player):
         '''
         draw player
         '''
-        if self.game.current_player_drawer != None:
-            player = self.game.current_player_drawer
-        else:
+        if not player:
             return
 
         tile_size = TILESIZE / 2
@@ -257,8 +243,8 @@ class Gui():
         top = TILEMARGIN
         left = XMARGIN
 
-        player_name = self.game.current_player.get_name()
-        player_number = self.game.current_player.get_number()
+        player_name = player.get_name()
+        player_number = player.get_number()
         player_color = PLAYER_COLORS[player_number - 1]
 
         pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size))
@@ -299,8 +285,6 @@ class Gui():
             if boarder:
                 pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size), 2)
             left += next_position
-
-
 
         # player Tiles
         top += next_position + tile_margin
@@ -349,111 +333,51 @@ class Gui():
             left += next_position + tile_margin
 
 
-    def draw_block(self, row, col):
+    def draw_message(self, message):
         '''
-        Draw block
+        Draw Last Event Message To Screen
         '''
-        left, top = self.left_top_coords_of_box(col, row)
-
-        if self.current_board_helper:
-            board = self.current_board_helper
-        else:
-            board = self.game.board
-        board = self.game.current_board_drawer
-        player = self.game.current_player_drawer
-
-        block_count = board.get_block_overlap_count(row, col)
-        block_color = board.get_block_color(row, col)
-
-        #fill rect
-        if block_color == COLOR.WHITE:
-            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE))
-        elif block_color == COLOR.GRAY:
-            pygame.draw.rect(DISPLAYSURF, GRAY, (left, top, TILESIZE, TILESIZE))
-        elif block_color == COLOR.BLACK:
-            pygame.draw.rect(DISPLAYSURF, BLACK, (left, top, TILESIZE, TILESIZE))
-
-        # draw outline
-        if block_count == 0:
-            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
-        elif block_count == 2:
-            pygame.draw.rect(DISPLAYSURF, GREEN, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
-        elif block_count > 2:
-            pygame.draw.rect(DISPLAYSURF, RED, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+        if not message:
+            return
+        pressKeySurf = BASICFONT.render(message, True, WHITE)
+        pressKeyRect = pressKeySurf.get_rect()
+        pressKeyRect.topleft = (XMARGIN, WINDOWHEIGHT - YMARGIN + 10)
+        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
 
 
-        # draw current marker boarder
-        if (not isinstance(board, Board)) and board.is_marked_block(row, col):
-            number = self.game.current_player.get_number()
-            player_color = PLAYER_COLORS[number - 1]
-            pygame.draw.rect(DISPLAYSURF, player_color, (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
-
-
-        # draw players
-        for player in self.game.players:
-            p_margin = 2
-            p_size = TILESIZE / 2 - p_margin * 2
-            p_left = left + p_margin
-            p_top = top + p_margin
-            p_width = p_size
-            p_height = p_size
-
-            p_row, p_col = player.get_position()
-            if (p_row, p_col) == (row, col):
-                number = player.get_number()
-
-                player_color = PLAYER_COLORS[number-1]
-
-                if number == 1:
-                    pass
-                if number == 2:
-                    p_left += p_width + p_margin * 2
-                if number == 3:
-                    p_top += p_height + p_margin * 2
-                if number == 4:
-                    p_left += p_width + p_margin * 2
-                    p_top += p_height + p_margin * 2
-
-                pygame.draw.rect(DISPLAYSURF, player_color, (p_left, p_top, p_width, p_height))
-
-
-    def draw_board(self):
+    def left_top_coords_of_box(self, col, row):
         '''
-        Draw board
+        docstring
         '''
-        DISPLAYSURF.fill(BGCOLOR)
-        for row in range(self.game.board.get_row_count()):
-            for col in range(self.game.board.get_col_count()):
-                self.draw_block(row, col)
-        self.draw_player()
-        self.draw_message()
-        # self.draw_pattern()
+        # Convert board coordinates to pixel coordinates
+        left = col * (TILESIZE + TILEMARGIN) + XMARGIN
+        top = row * (TILESIZE + TILEMARGIN) + YMARGIN
+        return (left, top)
 
 
     def handle_change_pattern_event(self, event):
         '''
         handle change pattern event
         '''
-        if event.key == K_BACKQUOTE:
-            # self.game.change_status(STATUS.TILE_PLACEMENT)
-            return False
-        elif event.key == K_1:
-            self.game.pattern_update_helper.enqueue_change_color(COLOR.WHITE)
-            self.last_action_msg = 'add pattern WHITE'
-        elif event.key == K_2:
-            self.game.pattern_update_helper.enqueue_change_color(COLOR.GRAY)
-            self.last_action_msg = 'add pattern GRAY'
-        elif event.key == K_3:
-            self.game.pattern_update_helper.enqueue_change_color(COLOR.BLACK)
-            self.last_action_msg = 'add pattern BLACK'
-        elif event.key == K_RETURN or event.key == K_SPACE:
-            if self.game.pattern_update_helper.can_save_player():
-                self.game.pattern_update_helper.save_player()
-                self.game.current_player.remove_tile(self.game.current_tile)
-                self.last_action_msg = 'Save Pattern'
+        if event.type == KEYDOWN:
+            if event.key == K_BACKQUOTE:
                 return False
-            self.last_action_msg = 'Cannot Save Pattern'
-
+            elif event.key == K_1:
+                self.game.pattern_update_helper.enqueue_change_color(COLOR.WHITE)
+                self.last_action_msg = 'add pattern WHITE'
+            elif event.key == K_2:
+                self.game.pattern_update_helper.enqueue_change_color(COLOR.GRAY)
+                self.last_action_msg = 'add pattern GRAY'
+            elif event.key == K_3:
+                self.game.pattern_update_helper.enqueue_change_color(COLOR.BLACK)
+                self.last_action_msg = 'add pattern BLACK'
+            elif event.key == K_RETURN or event.key == K_SPACE:
+                if self.game.pattern_update_helper.can_save_player():
+                    self.game.pattern_update_helper.save_player()
+                    self.game.current_player.remove_tile(self.game.current_tile)
+                    self.last_action_msg = 'Save Pattern'
+                    return False
+                self.last_action_msg = 'Cannot Save Pattern'
         return True
 
 
@@ -461,69 +385,76 @@ class Gui():
         '''
         handle tile placement
         '''
-        if event.key == K_BACKQUOTE:
-            self.game.change_status(STATUS.TILE_PLACEMENT_CHANGE_PATTERN)
+        if event.type == KEYDOWN:
+            if event.key == K_BACKQUOTE:
+                # todo : hide this CODE into game class
+                status = STATUS.TILE_PLACEMENT_CHANGE_PATTERN
+                board = self.game.get_current_board()
+                player = self.game.pattern_update_helper
+                self.game.pattern_update_helper.set_player(player)
+                self.game.change_status(status, board, player, True)
+                # todo : hide this CODE into game class
 
-        elif event.key == K_1:
-            self.game.tile_placement_helper.select_tile(0)
-            self.last_action_msg = 'Change Tile to 1'
+            elif event.key == K_1:
+                self.game.tile_placement_helper.select_tile(0)
+                self.last_action_msg = 'Change Tile to 1'
 
-        elif event.key == K_2:
-            self.game.tile_placement_helper.select_tile(1)
-            self.last_action_msg = 'Change Tile to 2'
+            elif event.key == K_2:
+                self.game.tile_placement_helper.select_tile(1)
+                self.last_action_msg = 'Change Tile to 2'
 
-        elif event.key == K_3:
-            self.game.tile_placement_helper.select_tile(2)
-            self.last_action_msg = 'Change Tile to 3'
+            elif event.key == K_3:
+                self.game.tile_placement_helper.select_tile(2)
+                self.last_action_msg = 'Change Tile to 3'
 
-        elif event.key == K_4:
-            self.game.tile_placement_helper.select_tile(3)
-            self.last_action_msg = 'Change Tile to 4'
+            elif event.key == K_4:
+                self.game.tile_placement_helper.select_tile(3)
+                self.last_action_msg = 'Change Tile to 4'
 
-        elif event.key == K_LEFT or event.key == K_a:
-            if self.game.tile_placement_helper.move_left():
-                self.last_action_msg = 'Move Tile Left'
-            else:
-                self.last_action_msg = 'Cannot move Tile Left'
+            elif event.key == K_LEFT or event.key == K_a:
+                if self.game.tile_placement_helper.move_left():
+                    self.last_action_msg = 'Move Tile Left'
+                else:
+                    self.last_action_msg = 'Cannot move Tile Left'
 
-        elif event.key == K_RIGHT or event.key == K_d:
-            if self.game.tile_placement_helper.move_right():
-                self.last_action_msg = 'Move Tile Right'
-            else:
-                self.last_action_msg = 'Cannot move Tile Right'
+            elif event.key == K_RIGHT or event.key == K_d:
+                if self.game.tile_placement_helper.move_right():
+                    self.last_action_msg = 'Move Tile Right'
+                else:
+                    self.last_action_msg = 'Cannot move Tile Right'
 
-        elif event.key == K_UP or event.key == K_w:
-            if self.game.tile_placement_helper.move_up():
-                self.last_action_msg = 'Move Tile Up'
-            else:
-                self.last_action_msg = 'Cannot move Tile Up'
+            elif event.key == K_UP or event.key == K_w:
+                if self.game.tile_placement_helper.move_up():
+                    self.last_action_msg = 'Move Tile Up'
+                else:
+                    self.last_action_msg = 'Cannot move Tile Up'
 
-        elif event.key == K_DOWN or event.key == K_s:
-            if self.game.tile_placement_helper.move_down():
-                self.last_action_msg = 'Move Tile Down'
-            else:
-                self.last_action_msg = 'Cannot move Tile Down'
+            elif event.key == K_DOWN or event.key == K_s:
+                if self.game.tile_placement_helper.move_down():
+                    self.last_action_msg = 'Move Tile Down'
+                else:
+                    self.last_action_msg = 'Cannot move Tile Down'
 
-        elif event.key == K_q:
-            if self.game.tile_placement_helper.rotate_clockwise():
-                self.last_action_msg = 'Rotate Tile Clockwise'
-            else:
-                self.last_action_msg = 'Cannot Rotate Tile Clockwise'
+            elif event.key == K_q:
+                if self.game.tile_placement_helper.rotate_clockwise():
+                    self.last_action_msg = 'Rotate Tile Clockwise'
+                else:
+                    self.last_action_msg = 'Cannot Rotate Tile Clockwise'
 
-        elif event.key == K_e:
-            if self.game.tile_placement_helper.rotate_counter_clockwise():
-                self.last_action_msg = 'Rotate Tile Counter Clockwise'
-            else:
-                self.last_action_msg = 'Cannot Rotate Tile Counter Clockwise'
+            elif event.key == K_e:
+                if self.game.tile_placement_helper.rotate_counter_clockwise():
+                    self.last_action_msg = 'Rotate Tile Counter Clockwise'
+                else:
+                    self.last_action_msg = 'Cannot Rotate Tile Counter Clockwise'
 
-        elif event.key == K_RETURN or event.key == K_SPACE:
-            if self.game.tile_placement_helper.can_save_piece():
-                self.game.tile_placement_helper.save_piece()
-                self.game.tile_placement_helper.clear_marker()
-                self.last_action_msg = 'Save Tile'
-                return False
-            else:
-                self.last_action_msg = 'Cannot Save Tile'
+            elif event.key == K_RETURN or event.key == K_SPACE:
+                if self.game.tile_placement_helper.can_save_piece():
+                    self.game.tile_placement_helper.save_piece()
+                    self.game.tile_placement_helper.clear_marker()
+                    self.last_action_msg = 'Save Tile'
+                    return False
+                else:
+                    self.last_action_msg = 'Cannot Save Tile'
 
         return True
 
@@ -539,90 +470,63 @@ class Gui():
         '''
         handle player change pattern
         '''
-        if self.game.player_movement_helper.is_piece_initialized():
-            if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                if event.key == K_LEFT or event.key == K_a:
-                    self.game.player_movement_helper.move_left_shift()
-                    self.last_action_msg = 'Shift Move Player LEFT'
+        if event.type == KEYDOWN:
+            if self.game.player_movement_helper.is_piece_initialized():
+                if pygame.key.get_mods() & pygame.KMOD_SHIFT:
+                    if event.key == K_LEFT or event.key == K_a:
+                        self.game.player_movement_helper.move_left_shift()
+                        self.last_action_msg = 'Shift Move Player LEFT'
 
-                elif event.key == K_RIGHT or event.key == K_d:
-                    self.game.player_movement_helper.move_right_shift()
-                    self.last_action_msg = 'Shift Move Player RIGHT'
+                    elif event.key == K_RIGHT or event.key == K_d:
+                        self.game.player_movement_helper.move_right_shift()
+                        self.last_action_msg = 'Shift Move Player RIGHT'
 
-                elif event.key == K_UP or event.key == K_w:
-                    self.game.player_movement_helper.move_up_shift()
-                    self.last_action_msg = 'Shift Move Player UP'
+                    elif event.key == K_UP or event.key == K_w:
+                        self.game.player_movement_helper.move_up_shift()
+                        self.last_action_msg = 'Shift Move Player UP'
 
-                elif event.key == K_DOWN or event.key == K_s:
-                    self.game.player_movement_helper.move_down_shift()
-                    self.last_action_msg = 'Shift Move Player DOWN'
+                    elif event.key == K_DOWN or event.key == K_s:
+                        self.game.player_movement_helper.move_down_shift()
+                        self.last_action_msg = 'Shift Move Player DOWN'
+                else:
+                    if event.key == K_LEFT or event.key == K_a:
+                        self.game.player_movement_helper.move_left()
+                        self.last_action_msg = 'Move Player LEFT'
+
+                    elif event.key == K_RIGHT or event.key == K_d:
+                        self.game.player_movement_helper.move_right()
+                        self.last_action_msg = 'Move Player RIGHT'
+
+                    elif event.key == K_UP or event.key == K_w:
+                        self.game.player_movement_helper.move_up()
+                        self.last_action_msg = 'Move Player UP'
+
+                    elif event.key == K_DOWN or event.key == K_s:
+                        self.game.player_movement_helper.move_down()
+                        self.last_action_msg = 'Move Player DOWN'
+
+                    elif event.key == K_RETURN or event.key == K_SPACE:
+                        if self.game.player_movement_helper.can_save_piece():
+                            self.game.player_movement_helper.save_piece()
+                            self.game.player_movement_helper.clear_marker()
+                            self.last_action_msg = 'Save Player'
+                            return False
+                        else:
+                            self.last_action_msg = 'Cannot Save Player'
             else:
-                if event.key == K_LEFT or event.key == K_a:
-                    self.game.player_movement_helper.move_left()
-                    self.last_action_msg = 'Move Player LEFT'
-
-                elif event.key == K_RIGHT or event.key == K_d:
-                    self.game.player_movement_helper.move_right()
-                    self.last_action_msg = 'Move Player RIGHT'
-
-                elif event.key == K_UP or event.key == K_w:
-                    self.game.player_movement_helper.move_up()
-                    self.last_action_msg = 'Move Player UP'
-
-                elif event.key == K_DOWN or event.key == K_s:
-                    self.game.player_movement_helper.move_down()
-                    self.last_action_msg = 'Move Player DOWN'
-
-                elif event.key == K_RETURN or event.key == K_SPACE:
-                    if self.game.player_movement_helper.can_save_piece():
-                        self.game.player_movement_helper.save_piece()
-                        self.game.player_movement_helper.clear_marker()
-                        self.last_action_msg = 'Save Player'
-                        return False
-                    else:
-                        self.last_action_msg = 'Cannot Save Player'
-        else:
-            if event.key == K_1:
-                if self.game.player_movement_helper.set_start_point(0, 0):
-                    self.last_action_msg = 'Player Start At[0,0]'
-            elif event.key == K_2:
-                if self.game.player_movement_helper.set_start_point(1, 0):
-                    self.last_action_msg = 'Player Start At[1,0]'
-            elif event.key == K_3:
-                if self.game.player_movement_helper.set_start_point(2, 0):
-                    self.last_action_msg = 'Player Start At[2,0]'
-            elif event.key == K_4:
-                if self.game.player_movement_helper.set_start_point(3, 0):
-                    self.last_action_msg = 'Player Start At[3,0]'
-            elif event.key == K_5:
-                if self.game.player_movement_helper.set_start_point(4, 0):
-                    self.last_action_msg = 'Player Start At[4,0]'
+                if event.key == K_1:
+                    if self.game.player_movement_helper.set_start_point(0, 0):
+                        self.last_action_msg = 'Player Start At[0,0]'
+                elif event.key == K_2:
+                    if self.game.player_movement_helper.set_start_point(1, 0):
+                        self.last_action_msg = 'Player Start At[1,0]'
+                elif event.key == K_3:
+                    if self.game.player_movement_helper.set_start_point(2, 0):
+                        self.last_action_msg = 'Player Start At[2,0]'
+                elif event.key == K_4:
+                    if self.game.player_movement_helper.set_start_point(3, 0):
+                        self.last_action_msg = 'Player Start At[3,0]'
+                elif event.key == K_5:
+                    if self.game.player_movement_helper.set_start_point(4, 0):
+                        self.last_action_msg = 'Player Start At[4,0]'
         return True
-
-
-'''
-functions used for debugging
-'''
-
-def create_board_type_one(max_row, max_col):
-    '''
-    Method Description
-    '''
-    board = Board(max_row, max_col)
-
-    for row in range(max_row):
-        for col in range(max_col-1):
-            tile = None
-            if col%3 == 0:
-                tile = TileWW()
-            elif col%3 == 1:
-                tile = TileWG()
-            elif col%3 == 2:
-                tile = TileWB()
-            else:
-                tile = TileGB()
-
-            direction = DIRECTION.RIGHT
-            board.place_tile(tile, row, col, direction)
-
-    return board

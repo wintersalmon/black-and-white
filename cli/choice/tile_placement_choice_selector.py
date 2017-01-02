@@ -8,10 +8,10 @@ Contains TilePlacementChoiceSelector
 import random
 
 from cli.choice.choice_selector import ChoiceSelector
-from data.board.tile import TileWW, TileWG, TileWB, TileGB
-from data.board.direction import DIRECTION
-from data.event.tile_placement_event import TilePlacementEvent
-from data.event.game_over_event import GameOverEvent
+from game.board.tile import TileWW, TileWG, TileWB, TileGB
+from game.board.direction import DIRECTION
+from game.event.tile_placement_event import TilePlacementEvent
+from game.event.game_over_event import GameOverEvent
 
 
 class TilePlacementChoiceSelector(ChoiceSelector):

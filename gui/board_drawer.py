@@ -5,9 +5,9 @@ Board Drawer for pygame
 '''
 
 
-from data.board.direction import DIRECTION
-from data.board.color import COLOR
-from data.board.block import Block
+from game.board.direction import DIRECTION
+from game.board.color import COLOR
+from game.board.block import Block
 
 
 class BoardDrawer():

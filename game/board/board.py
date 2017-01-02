@@ -6,17 +6,17 @@ This module contains classes about board
 
 
 # from collections import namedtuple
-from data.board.tile import Tile
-from data.board.block import Block
-from data.board.direction import DIRECTION
-from data.board.color import COLOR
+from game.board.tile import Tile
+from game.board.block import Block
+from game.board.direction import DIRECTION
+from game.board.color import COLOR
 
-from data.board.board_interface import BoardInterface
+from game.board.board_interface import BoardInterface
 
 
 class Board(BoardInterface):
     '''
-    This class contains data about board
+    This class contains Game about board
     '''
     def __init__(self, row_count, col_count):
         self.row_count = row_count

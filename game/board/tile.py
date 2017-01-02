@@ -4,8 +4,8 @@ WinterSalmon
 Class Name
 '''
 
-from data.board.block import WhiteBlock, GrayBlock, BlackBlock
-from data.util.auto_number_enum import AutoNumberEnum
+from game.board.block import WhiteBlock, GrayBlock, BlackBlock
+from game.util.auto_number_enum import AutoNumberEnum
 
 class TILE(AutoNumberEnum):
     '''

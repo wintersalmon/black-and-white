@@ -1,9 +1,10 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-Main
+Main Gui
 '''
 
+from game.game import Game
 from gui.gui import Gui
 
 if __name__ == "__main__":

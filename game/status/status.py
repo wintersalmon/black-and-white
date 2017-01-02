@@ -4,7 +4,7 @@ WinterSalmon
 Contains Status Enum class
 '''
 
-from data.util.auto_number_enum import AutoNumberEnum
+from game.util.auto_number_enum import AutoNumberEnum
 
 class STATUS(AutoNumberEnum):
     '''

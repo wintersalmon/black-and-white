@@ -10,10 +10,10 @@ from cli.cmd.clear import clear
 from cli.board_drawer import BoardDrawer
 from cli.choice.tile_placement_choice_selector import TilePlacementChoiceSelector
 
-from data.board.board import Board
-from data.board.tile import TileWW, TileWG, TileWB, TileGB
-from data.board.direction import DIRECTION
-from data.event.event import EVENT
+from game.board.board import Board
+from game.board.tile import TileWW, TileWG, TileWB, TileGB
+from game.board.direction import DIRECTION
+from game.event.event import EVENT
 
 
 

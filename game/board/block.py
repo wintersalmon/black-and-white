@@ -4,7 +4,7 @@ WinterSalmon
 Class Name
 '''
 
-from data.board.color import COLOR
+from game.board.color import COLOR
 
 class Block():
     '''

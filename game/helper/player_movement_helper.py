@@ -5,9 +5,9 @@ Contains PlayerMovementHelper
 '''
 
 
-from data.board.board_interface import BoardInterface
-from data.helper.piece_movement_helper import PieceMovementHelper
-from data.player import Player, PlayerInterface
+from game.board.board_interface import BoardInterface
+from game.helper.piece_movement_helper import PieceMovementHelper
+from game.player import Player, PlayerInterface
 
 
 class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper):

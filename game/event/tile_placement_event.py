@@ -5,7 +5,7 @@ Contains TilePlacementEvent class
 '''
 
 
-from data.event.event import Event, EVENT
+from game.event.event import Event, EVENT
 
 class TilePlacementEvent(Event):
     '''

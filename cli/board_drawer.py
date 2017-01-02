@@ -5,8 +5,8 @@ Class Description
 '''
 
 
-from data.board.direction import DIRECTION
-from data.board.color import COLOR
+from game.board.direction import DIRECTION
+from game.board.color import COLOR
 
 
 class BoardDrawer():

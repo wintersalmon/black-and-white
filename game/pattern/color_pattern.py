@@ -5,8 +5,8 @@ ColorPattern
 '''
 
 
-from data.board.color import COLOR
-from data.pattern.pattern import Pattern
+from game.board.color import COLOR
+from game.pattern.pattern import Pattern
 
 
 class ColorPattern(Pattern):
