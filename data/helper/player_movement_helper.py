@@ -249,7 +249,8 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
         '''
         clear player marker
         '''
-        self.player = None
+        self.row = -1
+        self.col = -1
 
     # Implemented PieceMovementHelper
     def is_marked_block(self, row, col):

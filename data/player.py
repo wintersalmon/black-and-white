@@ -96,7 +96,7 @@ class Player(PlayerInterface):
         self.name = name
         self.row = -1
         self.col = -1
-        self.color_pattern = None
+        self.color_pattern = ColorPattern()
         self.pattern_counter = 0
         self.selected_tile = None
 

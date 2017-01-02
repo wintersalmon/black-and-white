@@ -35,6 +35,7 @@ class Data():
         self.current_player_drawer = None
 
         self.game_running = False
+        self.continue_status = False
 
 
     def next_player(self):
@@ -47,9 +48,9 @@ class Data():
         return self.current_player
 
 
-    def init_game(self, board, players):
+    def start(self, board, players):
         '''
-        set game
+        init game variables and start game
         '''
         if not isinstance(board, Board):
             raise TypeError('parameter board need to be Board Type')
@@ -67,6 +68,11 @@ class Data():
         self.current_player = None
         self.current_tile = None
 
+        self.game_running = True
+        self.current_board_drawer = self.board
+        self.current_player_drawer = self.current_player
+
+        # self.status = STATUS.GAME_START
         self.change_status(STATUS.GAME_START)
 
 
@@ -81,11 +87,25 @@ class Data():
                 self.current_board_drawer = self.board
                 self.current_player_drawer = self.current_player
 
+            elif self.status == STATUS.TILE_PLACEMENT_NEXT_PLAYER:
+                for player in self.players:
+                    # todo : remove all tiles
+                    for _ in range(3):
+                        if self.deck.size() > 0:
+                            tile = self.deck.draw()
+                            player.add_tile(tile)
+
             elif self.status == STATUS.TILE_PLACEMENT:
                 self.tile_placement_helper.set_piece(self.current_player)
 
                 self.current_board_drawer = self.tile_placement_helper
                 self.current_player_drawer = self.current_player
+
+            elif self.status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+                self.pattern_update_helper.set_player(self.current_player)
+
+                self.current_board_drawer = self.board
+                self.current_player_drawer = self.pattern_update_helper
 
             elif self.status == STATUS.PLAYER_MOVEMENT:
                 self.player_movement_helper.set_piece(self.current_player)
@@ -93,15 +113,76 @@ class Data():
                 self.current_board_drawer = self.player_movement_helper
                 self.current_player_drawer = self.player_movement_helper
 
-            elif self.status == STATUS.PLAYER_CHANGE_PATTERN:
-                self.pattern_update_helper.set_player(self.current_player)
-
-                self.current_board_drawer = self.board
-                self.current_player_drawer = self.pattern_update_helper
-
             else:
                 self.current_board_drawer = self.board
                 self.current_player_drawer = self.current_player
 
             return True
         return False
+
+
+    def is_game_over(self):
+        '''
+        returns True if game over condition matches
+        '''
+        return not self.game_running
+
+
+    def update_status(self):
+        '''
+        Need to Start() game first
+        Update game status to next status
+        '''
+        if self.status == STATUS.GAME_START:
+            self.status = STATUS.NEXT_ROUND
+
+        elif self.status == STATUS.NEXT_ROUND:
+            if self.is_game_over():
+            # if self.turn_counter % (len(self.players) * 4 * 2) == 0:
+                self.status = STATUS.GAME_OVER
+            else:
+                self.change_status(STATUS.TILE_PLACEMENT_NEXT_PLAYER)
+                # self.status = STATUS.TILE_PLACEMENT_NEXT_PLAYER
+
+        elif self.status == STATUS.TILE_PLACEMENT_NEXT_PLAYER:
+            self.next_player()
+            if self.turn_counter % (len(self.players) * 3) == 0:
+                self.status = STATUS.PLAYER_MOVEMENT_NEXT_PLAYER
+            else:
+                self.continue_status = True
+                # self.status = STATUS.TILE_PLACEMENT
+                self.change_status(STATUS.TILE_PLACEMENT)
+
+        elif self.status == STATUS.TILE_PLACEMENT:
+            if not self.continue_status:
+                self.status = STATUS.TILE_PLACEMENT_NEXT_PLAYER
+
+        elif self.status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+            if not self.continue_status:
+                self.status = STATUS.TILE_PLACEMENT_NEXT_PLAYER
+
+        elif self.status == STATUS.PLAYER_MOVEMENT_NEXT_PLAYER:
+            self.next_player()
+            if self.turn_counter % (len(self.players) * 4) == 0:
+                self.status = STATUS.NEXT_ROUND
+            else:
+                self.continue_status = True
+                # self.status = STATUS.PLAYER_MOVEMENT
+                self.change_status(STATUS.PLAYER_MOVEMENT)
+
+        elif self.status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
+            if not self.continue_status:
+                # self.status = STATUS.PLAYER_MOVEMENT
+                self.change_status(STATUS.PLAYER_MOVEMENT)
+
+        elif self.status == STATUS.PLAYER_MOVEMENT:
+            if not self.continue_status:
+                self.status = STATUS.PLAYER_MOVEMENT_NEXT_PLAYER
+
+        elif self.status == STATUS.GAME_OVER:
+            return False
+
+        else:
+            raise EnvironmentError('Game not started')
+
+        return True
