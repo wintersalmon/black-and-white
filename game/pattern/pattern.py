@@ -58,10 +58,10 @@ class Pattern():
         '''
         clone pattern
         '''
-        pattern.symbols = copy.deepcopy(self.symbols)
-        pattern.symbol_rule_list = copy.deepcopy(self.symbol_rule_list)
-        pattern.max_length = self.max_length
-        pattern.current_pattern = copy.deepcopy(self.current_pattern)
+        self.symbols = copy.deepcopy(pattern.symbols)
+        self.symbol_rule_list = copy.deepcopy(pattern.symbol_rule_list)
+        self.max_length = pattern.max_length
+        self.current_pattern = copy.deepcopy(pattern.current_pattern)
 
         return pattern
 

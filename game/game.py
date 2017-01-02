@@ -39,6 +39,13 @@ class Game():
         self.current_round_count = 0
 
 
+    def get_players(self):
+        '''
+        returns players
+        '''
+        return self.players
+
+
     def get_current_status(self):
         '''
         returns current STATUS
@@ -120,10 +127,6 @@ class Game():
         self.continue_status = status_loop
         self.current_board = board
         self.current_player = player
-        if player:
-            print(status, player.get_name())
-        else:
-            print(status)
 
 
     def update(self):
@@ -164,7 +167,6 @@ class Game():
                 self.change_status(STATUS.TILE_PLACEMENT_NEXT_PLAYER)
 
         elif self.current_status == STATUS.TILE_PLACEMENT_NEXT_PLAYER:
-            print(self.current_round_count)
             if self.current_round_count > 0:
                 self.current_round_count -= 1
                 player = self.__next_turn()
@@ -189,6 +191,7 @@ class Game():
                 player = self.__next_turn()
                 self.player_movement_helper.set_piece(player)
                 board = self.player_movement_helper
+                player = self.player_movement_helper
                 self.change_status(STATUS.PLAYER_MOVEMENT, board, player, True)
             else:
                 self.change_status(STATUS.NEXT_ROUND)

@@ -148,6 +148,7 @@ class Gui():
         draw game
         '''
         self.draw_board(game.get_current_board())
+        self.draw_player_pieces(game.get_current_board(), game.get_players())
         self.draw_player(game.get_current_player())
         self.draw_message(game.get_current_message())
 
@@ -170,26 +171,32 @@ class Gui():
         '''
         left, top = self.left_top_coords_of_box(col, row)
 
-        # player = self.get_current_player()
-
         block_count = board.get_block_overlap_count(row, col)
         block_color = board.get_block_color(row, col)
 
         #fill rect
+        fill_color = None
         if block_color == COLOR.WHITE:
-            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE))
+            fill_color = WHITE
         elif block_color == COLOR.GRAY:
-            pygame.draw.rect(DISPLAYSURF, GRAY, (left, top, TILESIZE, TILESIZE))
+            fill_color = GRAY
         elif block_color == COLOR.BLACK:
-            pygame.draw.rect(DISPLAYSURF, BLACK, (left, top, TILESIZE, TILESIZE))
+            fill_color = BLACK
+
+        if fill_color:
+            pygame.draw.rect(DISPLAYSURF, fill_color, (left, top, TILESIZE, TILESIZE))
 
         # draw outline
+        boarder_color = None
         if block_count == 0:
-            pygame.draw.rect(DISPLAYSURF, WHITE, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+            boarder_color = WHITE
         elif block_count == 2:
-            pygame.draw.rect(DISPLAYSURF, GREEN, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+            boarder_color = GREEN
         elif block_count > 2:
-            pygame.draw.rect(DISPLAYSURF, RED, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+            boarder_color = RED
+
+        if boarder_color:
+            pygame.draw.rect(DISPLAYSURF, boarder_color, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
 
 
         # draw current marker boarder
@@ -198,34 +205,40 @@ class Gui():
             player_color = PLAYER_COLORS[number - 1]
             pygame.draw.rect(DISPLAYSURF, player_color, (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
 
-        # todo : seperate draw_player_on_board
 
-        # draw players
-        # for player in self.game.players:
-        #     p_margin = 2
-        #     p_size = TILESIZE / 2 - p_margin * 2
-        #     p_left = left + p_margin
-        #     p_top = top + p_margin
-        #     p_width = p_size
-        #     p_height = p_size
+    def draw_player_pieces(self, board, players):
+        '''
+        draw player pieces
+        '''
+        if not board or not players:
+            return
 
-        #     p_row, p_col = player.get_position()
-        #     if (p_row, p_col) == (row, col):
-        #         number = player.get_number()
+        for player in players:
+            p_row, p_col = player.get_position()
+            if p_row >= 0 and p_col >= 0:
+                left, top = self.left_top_coords_of_box(p_col, p_row)
+                p_margin = 2
+                p_size = TILESIZE / 2 - p_margin * 2
+                p_left = left + p_margin
+                p_top = top + p_margin
+                p_width = p_size
+                p_height = p_size
 
-        #         player_color = PLAYER_COLORS[number-1]
+                number = player.get_number()
 
-        #         if number == 1:
-        #             pass
-        #         if number == 2:
-        #             p_left += p_width + p_margin * 2
-        #         if number == 3:
-        #             p_top += p_height + p_margin * 2
-        #         if number == 4:
-        #             p_left += p_width + p_margin * 2
-        #             p_top += p_height + p_margin * 2
+                player_color = PLAYER_COLORS[number-1]
 
-        #         pygame.draw.rect(DISPLAYSURF, player_color, (p_left, p_top, p_width, p_height))
+                if number == 1:
+                    pass
+                if number == 2:
+                    p_left += p_width + p_margin * 2
+                if number == 3:
+                    p_top += p_height + p_margin * 2
+                if number == 4:
+                    p_left += p_width + p_margin * 2
+                    p_top += p_height + p_margin * 2
+
+                pygame.draw.rect(DISPLAYSURF, player_color, (p_left, p_top, p_width, p_height))
 
 
     def draw_player(self, player):
@@ -374,8 +387,8 @@ class Gui():
             elif event.key == K_RETURN or event.key == K_SPACE:
                 if self.game.pattern_update_helper.can_save_player():
                     self.game.pattern_update_helper.save_player()
-                    self.game.current_player.remove_tile(self.game.current_tile)
                     self.last_action_msg = 'Save Pattern'
+                    print(self.last_action_msg)
                     return False
                 self.last_action_msg = 'Cannot Save Pattern'
         return True
@@ -390,8 +403,9 @@ class Gui():
                 # todo : hide this CODE into game class
                 status = STATUS.TILE_PLACEMENT_CHANGE_PATTERN
                 board = self.game.get_current_board()
-                player = self.game.pattern_update_helper
+                player = self.game.get_current_player()
                 self.game.pattern_update_helper.set_player(player)
+                player = self.game.pattern_update_helper
                 self.game.change_status(status, board, player, True)
                 # todo : hide this CODE into game class
 
