@@ -20,6 +20,7 @@ class Game():
         self.current_status = STATUS.NOSTATUS
         self.turn_counter = 0
         self.game_running = False
+        self.game_over = False
         self.continue_status = False
 
         self.board = None
@@ -74,14 +75,24 @@ class Game():
         return self.current_message
 
 
+    def is_game_running(self):
+        '''
+        returns True if game is running
+        '''
+        return self.game_running
+
+
     def is_game_over(self):
         '''
         returns True if game over condition matches
         '''
-        # todo : check game condition over
-        # return not self.game_running
-        divider = len(self.players) * (self.rule_max_round_count + 1) * 2
-        return (self.turn_counter > 0) and (self.turn_counter % divider == 0)
+        # return (self.turn_counter > 0) and (self.turn_counter % divider == 0)
+        for player in self.players:
+            row, col = player.get_position()
+            if self.board.check_row_col_boundary(row, col):
+                if col == self.board.get_col_count() - 1:
+                    self.game_over = True
+        return self.game_over
 
 
     def init_game(self, player_names, max_row, max_col):
@@ -98,6 +109,7 @@ class Game():
         self.current_status = STATUS.GAME_START
         self.turn_counter = 0
         self.game_running = True
+        self.game_over = False
         self.continue_status = False
 
         self.board = Board(max_row, max_col)
@@ -119,7 +131,7 @@ class Game():
         self.current_round_count = 0
 
 
-    def change_status(self, status, board=None, player=None, status_loop=False):
+    def change_status(self, status, board=None, player=None, status_loop=True):
         '''
         change current status
         '''
@@ -169,7 +181,8 @@ class Game():
         elif self.current_status == STATUS.TILE_PLACEMENT_NEXT_PLAYER:
             if self.current_round_count > 0:
                 self.current_round_count -= 1
-                player = self.__next_turn()
+                self.__next_turn()
+                player = self.current_player
                 self.tile_placement_helper.set_piece(player)
                 board = self.tile_placement_helper
                 self.change_status(STATUS.TILE_PLACEMENT, board, player, True)
@@ -188,7 +201,8 @@ class Game():
         elif self.current_status == STATUS.PLAYER_MOVEMENT_NEXT_PLAYER:
             if self.current_round_count > 0:
                 self.current_round_count -= 1
-                player = self.__next_turn()
+                self.__next_turn()
+                player = self.current_player
                 self.player_movement_helper.set_piece(player)
                 board = self.player_movement_helper
                 player = self.player_movement_helper
@@ -205,7 +219,7 @@ class Game():
                 self.current_status = STATUS.PLAYER_MOVEMENT_NEXT_PLAYER
 
         elif self.current_status == STATUS.GAME_OVER:
-            pass
+            self.game_running = False
 
         else:
             return False
@@ -218,10 +232,7 @@ class Game():
         increase turn counter and get next player
         '''
         player = self.get_next_player()
-        if self.change_current_turn_player(player):
-            return player
-        else:
-            return None
+        return self.change_current_turn_player(player)
 
 
     def get_next_player(self):

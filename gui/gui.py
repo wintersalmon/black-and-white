@@ -116,7 +116,7 @@ class Gui():
         player_names = ['WinterSalmon', 'Kein', 'Sshong91', 'Wool']
         self.game.init_game(player_names, MAX_ROW, MAX_COL)
 
-        while not self.game.is_game_over():
+        while self.game.is_game_running():
             self.draw(self.game)
             self.status = self.game.get_current_status()
 
@@ -197,7 +197,6 @@ class Gui():
 
         if boarder_color:
             pygame.draw.rect(DISPLAYSURF, boarder_color, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
-
 
         # draw current marker boarder
         if (not isinstance(board, Board)) and board.is_marked_block(row, col):
@@ -350,6 +349,7 @@ class Gui():
         '''
         Draw Last Event Message To Screen
         '''
+        message = self.last_action_msg
         if not message:
             return
         pressKeySurf = BASICFONT.render(message, True, WHITE)
