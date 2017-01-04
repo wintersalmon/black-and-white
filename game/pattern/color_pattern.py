@@ -5,7 +5,7 @@ ColorPattern
 '''
 
 
-from game.board.color import COLOR
+from game.color.constant import WHITE, GRAY, BLACK
 from game.pattern.pattern import Pattern
 
 
@@ -15,6 +15,6 @@ class ColorPattern(Pattern):
     '''
     def __init__(self):
         super().__init__()
-        self._init_add_symbol_rule(COLOR.WHITE, 2)
-        self._init_add_symbol_rule(COLOR.GRAY, 1)
-        self._init_add_symbol_rule(COLOR.BLACK, 1)
+        self._init_add_symbol_rule(WHITE, 2)
+        self._init_add_symbol_rule(GRAY, 1)
+        self._init_add_symbol_rule(BLACK, 1)

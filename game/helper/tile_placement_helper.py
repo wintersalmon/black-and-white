@@ -83,12 +83,12 @@ class TilePlacementHelper(BoardInterface, PieceMovementHelper):
         if self.tile:
             # is current [row,col]
             if self.row == row and self.col == col:
-                color += self.tile.get_block(0).get_color()
+                color = self.tile.get_block(0).get_mixed_color(color)
 
             # is current [row,col,direction]
             row2, col2 = DIRECTION.adjust_row_col_by_direction(self.row, self.col, self.direction)
             if row2 == row and col2 == col:
-                color += self.tile.get_block(1).get_color()
+                color = self.tile.get_block(1).get_mixed_color(color)
 
         return color
 

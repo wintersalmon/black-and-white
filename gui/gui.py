@@ -11,7 +11,8 @@ from pygame.locals import *
 from game.game import Game
 from game.board.board import Board
 from game.board.tile import TILE
-from game.board.color import COLOR
+# from game.board.color import COLOR
+from game.color.constant import *
 from game.status.status import STATUS
 from game.helper.tile_placement_helper import TilePlacementHelper
 from game.helper.player_movement_helper import PlayerMovementHelper
@@ -32,19 +33,19 @@ MAX_ROW = 5 # number of rows of icons
 XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
 
-#            R    G    B
-WHITE    = (255, 255, 255)
-GRAY     = (100, 100, 100)
-BLACK    = (  0,   0,   0)
+# #            R    G    B
+# WHITE    = (255, 255, 255)
+# GRAY     = (100, 100, 100)
+# BLACK    = (  0,   0,   0)
 
-NAVYBLUE = ( 60,  60, 100)
-RED      = (255,   0,   0)
-GREEN    = (  0, 255,   0)
-BLUE     = (  0,   0, 255)
-YELLOW   = (255, 255,   0)
-ORANGE   = (255, 128,   0)
-PURPLE   = (255,   0, 255)
-CYAN     = (  0, 255, 255)
+# NAVYBLUE = ( 60,  60, 100)
+# RED      = (255,   0,   0)
+# GREEN    = (  0, 255,   0)
+# BLUE     = (  0,   0, 255)
+# YELLOW   = (255, 255,   0)
+# ORANGE   = (255, 128,   0)
+# PURPLE   = (255,   0, 255)
+# CYAN     = (  0, 255, 255)
 
 BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
@@ -98,7 +99,7 @@ class Gui():
         FPSCLOCK = pygame.time.Clock()
         BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
         DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-        DISPLAYSURF.fill(BGCOLOR)
+        DISPLAYSURF.fill(BGCOLOR.get_rgb())
 
         # init game Game
         self.game = Game()
@@ -148,7 +149,7 @@ class Gui():
         '''
         if not board:
             return
-        DISPLAYSURF.fill(BGCOLOR)
+        DISPLAYSURF.fill(BGCOLOR.get_rgb())
         for row in range(self.game.board.get_row_count()):
             for col in range(self.game.board.get_col_count()):
                 self.draw_block(board, row, col)
@@ -164,16 +165,19 @@ class Gui():
         block_color = board.get_block_color(row, col)
 
         #fill rect
-        fill_color = None
-        if block_color == COLOR.WHITE:
-            fill_color = WHITE
-        elif block_color == COLOR.GRAY:
-            fill_color = GRAY
-        elif block_color == COLOR.BLACK:
-            fill_color = BLACK
+        if block_color and block_color != NOCOLOR:
+            pygame.draw.rect(DISPLAYSURF, block_color.get_rgb(), (left, top, TILESIZE, TILESIZE))
 
-        if fill_color:
-            pygame.draw.rect(DISPLAYSURF, fill_color, (left, top, TILESIZE, TILESIZE))
+        # fill_color = None
+        # if block_color == COLOR.WHITE:
+        #     fill_color = WHITE
+        # elif block_color == COLOR.GRAY:
+        #     fill_color = GRAY
+        # elif block_color == COLOR.BLACK:
+        #     fill_color = BLACK
+
+        # if fill_color:
+        #     pygame.draw.rect(DISPLAYSURF, fill_color.get_rgb(), (left, top, TILESIZE, TILESIZE))
 
         # draw outline
         boarder_color = None
@@ -185,13 +189,13 @@ class Gui():
             boarder_color = RED
 
         if boarder_color:
-            pygame.draw.rect(DISPLAYSURF, boarder_color, (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
+            pygame.draw.rect(DISPLAYSURF, boarder_color.get_rgb(), (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
 
         # draw current marker boarder
         if (not isinstance(board, Board)) and board.is_marked_block(row, col):
             number = self.game.current_player.get_number()
             player_color = PLAYER_COLORS[number - 1]
-            pygame.draw.rect(DISPLAYSURF, player_color, (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
+            pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
 
 
     def draw_player_pieces(self, board, players):
@@ -226,7 +230,7 @@ class Gui():
                     p_left += p_width + p_margin * 2
                     p_top += p_height + p_margin * 2
 
-                pygame.draw.rect(DISPLAYSURF, player_color, (p_left, p_top, p_width, p_height))
+                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (p_left, p_top, p_width, p_height))
 
 
     def draw_player(self, player):
@@ -248,10 +252,10 @@ class Gui():
         player_number = player.get_number()
         player_color = PLAYER_COLORS[player_number - 1]
 
-        pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size))
+        pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size))
         left += tile_size + tile_margin
 
-        pressKeySurf = BASICFONT.render(player_name, True, WHITE)
+        pressKeySurf = BASICFONT.render(player_name, True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
         DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
@@ -260,7 +264,7 @@ class Gui():
         top += next_position + tile_margin
         left = XMARGIN
 
-        pressKeySurf = BASICFONT.render('Pattern : ', True, WHITE)
+        pressKeySurf = BASICFONT.render('Pattern : ', True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
         DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
@@ -275,23 +279,23 @@ class Gui():
                 boarder = True
             else:
                 boarder = False
-            if symbol == COLOR.WHITE:
-                symbol_color = WHITE
-            elif symbol == COLOR.GRAY:
-                symbol_color = GRAY
-            elif symbol == COLOR.BLACK:
-                symbol_color = BLACK
+            # if symbol == COLOR.WHITE:
+            #     symbol_color = WHITE
+            # elif symbol == COLOR.GRAY:
+            #     symbol_color = GRAY
+            # elif symbol == COLOR.BLACK:
+            #     symbol_color = BLACK
 
-            pygame.draw.rect(DISPLAYSURF, symbol_color, (left, top, tile_size, tile_size))
+            pygame.draw.rect(DISPLAYSURF, symbol.get_rgb(), (left, top, tile_size, tile_size))
             if boarder:
-                pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
             left += next_position
 
         # player Tiles
         top += next_position + tile_margin
         left = XMARGIN
 
-        pressKeySurf = BASICFONT.render('Tiles : ', True, WHITE)
+        pressKeySurf = BASICFONT.render('Tiles : ', True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
         DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
@@ -321,15 +325,15 @@ class Gui():
                 second_color = BLACK
 
             if boarder:
-                pygame.draw.rect(DISPLAYSURF, first_color, (left, top, tile_size, tile_size))
-                pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(DISPLAYSURF, first_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
                 left += tile_size
-                pygame.draw.rect(DISPLAYSURF, second_color, (left, top, tile_size, tile_size))
-                pygame.draw.rect(DISPLAYSURF, player_color, (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(DISPLAYSURF, second_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
             else:
-                pygame.draw.rect(DISPLAYSURF, first_color, (left, top, tile_size, tile_size))
+                pygame.draw.rect(DISPLAYSURF, first_color.get_rgb(), (left, top, tile_size, tile_size))
                 left += next_position
-                pygame.draw.rect(DISPLAYSURF, second_color, (left, top, tile_size, tile_size))
+                pygame.draw.rect(DISPLAYSURF, second_color.get_rgb(), (left, top, tile_size, tile_size))
 
             left += next_position + tile_margin
 
@@ -341,7 +345,7 @@ class Gui():
         message = self.last_action_msg
         if not message:
             return
-        pressKeySurf = BASICFONT.render(message, True, WHITE)
+        pressKeySurf = BASICFONT.render(message, True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (XMARGIN, WINDOWHEIGHT - YMARGIN + 10)
         DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
@@ -365,13 +369,13 @@ class Gui():
             if event.key == K_BACKQUOTE:
                 return False
             elif event.key == K_1:
-                self.game.pattern_update_helper.enqueue_change_color(COLOR.WHITE)
+                self.game.pattern_update_helper.enqueue_change_color(WHITE)
                 self.last_action_msg = 'add pattern WHITE'
             elif event.key == K_2:
-                self.game.pattern_update_helper.enqueue_change_color(COLOR.GRAY)
+                self.game.pattern_update_helper.enqueue_change_color(GRAY)
                 self.last_action_msg = 'add pattern GRAY'
             elif event.key == K_3:
-                self.game.pattern_update_helper.enqueue_change_color(COLOR.BLACK)
+                self.game.pattern_update_helper.enqueue_change_color(BLACK)
                 self.last_action_msg = 'add pattern BLACK'
             elif event.key == K_RETURN or event.key == K_SPACE:
                 if self.game.pattern_update_helper.can_save_player():

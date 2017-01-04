@@ -59,6 +59,12 @@ class Color():
         return self.rgb
 
 
+    def __key(self):
+        return (self.get_name(), self.get_rgb())
+
+    def __hash__(self):
+        return hash(self.__key())
+
     def __str__(self):
         return self.code.name
 

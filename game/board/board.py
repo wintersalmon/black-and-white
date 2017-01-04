@@ -9,7 +9,7 @@ This module contains classes about board
 from game.board.tile import Tile
 from game.board.block import Block
 from game.board.direction import DIRECTION
-from game.board.color import COLOR
+from game.color.constant import GRAY, BLACK
 
 from game.board.board_interface import BoardInterface
 
@@ -177,7 +177,7 @@ class Board(BoardInterface):
         block_one_color = tile.get_block(0).get_color()
         block_two_color = tile.get_block(1).get_color()
 
-        compare_colors = [COLOR.GRAY, COLOR.BLACK]
+        compare_colors = [GRAY, BLACK]
 
         if block_one_color in compare_colors:
             block_one_adjacent_colors = self.__get_adjacent_block_color(row, col)
