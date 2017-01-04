@@ -69,6 +69,13 @@ class Board(BoardInterface):
             return None
 
 
+    def is_marked(self, row, col):
+        '''
+        returns True if block[row,col] is marked
+        '''
+        return False
+
+
     def can_place_tile(self, tile, row, col, direction):
         '''
         Check if the new tile location satisfies every Tile Placement Rule

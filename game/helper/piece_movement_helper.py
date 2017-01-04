@@ -18,13 +18,6 @@ class PieceMovementHelper():
         raise NotImplementedError('You need to implement clear_marker')
 
 
-    def is_marked_block(self, row, col):
-        '''
-        returns true if the position is marked
-        '''
-        raise NotImplementedError('You need to implement is_marked_block')
-
-
     def get_cur_row(self):
         '''
         returns current piece row position

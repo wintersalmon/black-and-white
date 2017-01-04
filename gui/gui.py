@@ -17,6 +17,8 @@ from game.helper.tile_placement_helper import TilePlacementHelper
 from game.helper.player_movement_helper import PlayerMovementHelper
 from game.helper.pattern_update_helper import PatternUpdateHelper
 
+from gui.board_draw_unit import BoardDrawUnit
+
 
 FPS = 30 # frames per second, the general speed of the program
 WINDOWWIDTH = 640 # size of window's width in pixels
@@ -45,6 +47,7 @@ class Gui():
     '''
     def __init__(self):
         self.game = None
+        self.border_draw_unit = None
         self.current_board_helper = None
 
         self.players = list()
@@ -85,6 +88,12 @@ class Gui():
         BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
         DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
         DISPLAYSURF.fill(BGCOLOR.get_rgb())
+
+        # init draw units
+        self.border_draw_unit = BoardDrawUnit(pygame, DISPLAYSURF)
+        self.border_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, BGCOLOR)
+        self.border_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
+        self.border_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
 
         # init game Game
         self.game = Game()
@@ -134,53 +143,7 @@ class Gui():
         '''
         if not board:
             return
-        DISPLAYSURF.fill(BGCOLOR.get_rgb())
-        for row in range(self.game.board.get_row_count()):
-            for col in range(self.game.board.get_col_count()):
-                self.draw_block(board, row, col)
-
-
-    def draw_block(self, board, row, col):
-        '''
-        Draw block
-        '''
-        left, top = self.left_top_coords_of_box(col, row)
-
-        block_count = board.get_block_overlap_count(row, col)
-        block_color = board.get_block_color(row, col)
-
-        #fill rect
-        if block_color and block_color != NOCOLOR:
-            pygame.draw.rect(DISPLAYSURF, block_color.get_rgb(), (left, top, TILESIZE, TILESIZE))
-
-        # fill_color = None
-        # if block_color == COLOR.WHITE:
-        #     fill_color = WHITE
-        # elif block_color == COLOR.GRAY:
-        #     fill_color = GRAY
-        # elif block_color == COLOR.BLACK:
-        #     fill_color = BLACK
-
-        # if fill_color:
-        #     pygame.draw.rect(DISPLAYSURF, fill_color.get_rgb(), (left, top, TILESIZE, TILESIZE))
-
-        # draw outline
-        boarder_color = None
-        if block_count == 0:
-            boarder_color = WHITE
-        elif block_count == 2:
-            boarder_color = GREEN
-        elif block_count > 2:
-            boarder_color = RED
-
-        if boarder_color:
-            pygame.draw.rect(DISPLAYSURF, boarder_color.get_rgb(), (left, top, TILESIZE, TILESIZE), TILEBOARDERSIZE)
-
-        # draw current marker boarder
-        if (not isinstance(board, Board)) and board.is_marked_block(row, col):
-            number = self.game.current_player.get_number()
-            player_color = PLAYER_COLORS[number - 1]
-            pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left + 5, top + 5, TILESIZE - 10, TILESIZE - 10), TILEBOARDERSIZE)
+        self.border_draw_unit.draw(board)
 
 
     def draw_player_pieces(self, board, players):

@@ -6,24 +6,41 @@ Board Draw Unit for pygame
 
 
 from game.board.board_interface import BoardInterface
+from game.color.constant import *
 
 
 class BoardDrawUnit():
     '''
     Board Draw Unit for pygame
     '''
-    def __init__(self):
+    def __init__(self, pygame, displaysurf):
+        if not pygame:
+            raise ValueError('pygame shuld not be None')
+
+        if not displaysurf:
+            raise ValueError('displaysurf shuld not be None')
+
+        self.pygame = pygame
+        self.displaysurf = displaysurf
         # board size values
         self.board_width = None
         self.board_height = None
         self.board_xmargin = None
         self.board_ymargin = None
+        self.board_backgound_color = None
         # tile size values
         self.tile_size = None
         self.tile_margin = None
+        self.tile_border_size = None
+        self.tile_default_border_color = None
+        # marker size values
+        self.marker_size = None
+        self.marker_margin = None
+        self.marker_border_size = None
+        self.marker_default_border_color = None
 
 
-    def init_board_size(self, width, height, xmargin, ymargin):
+    def init_board_size(self, width, height, xmargin, ymargin, bg_color):
         '''
         initialize board size
         '''
@@ -31,68 +48,113 @@ class BoardDrawUnit():
         self.board_height = height
         self.board_xmargin = xmargin
         self.board_ymargin = ymargin
+        self.board_backgound_color = bg_color
 
 
-    def init_tile_size(self, size, margin):
+    def init_tile_size(self, size, margin, border_size, color):
         '''
         initialize tile size
         '''
         self.tile_size = size
         self.tile_margin = margin
+        self.tile_border_size = border_size
+        self.tile_default_border_color = color
 
 
-    def draw(self, displaysurf, board):
+    def init_marker_size(self, size, margin, border_size, color):
+        '''
+        initialize tile size
+        '''
+        self.marker_size = size
+        self.marker_margin = margin
+        self.marker_border_size = border_size
+        self.marker_default_border_color = color
+
+
+    def draw(self, board):
         '''
         draw board on screen
         '''
-        if not displaysurf:
-            raise ValueError('displaysurf shuld not be None')
-
         if not isinstance(board, BoardInterface):
             raise ValueError('board must be instance of BoardInterface')
 
+        self.displaysurf.fill(self.board_backgound_color.get_rgb())
         for row in range(board.get_row_count()):
             for col in range(board.get_col_count()):
-                self.draw_block(board, row, col)
+                self.__draw_block(board, row, col)
 
 
-    def draw_block(self, board, row, col):
+    def __draw_block(self, board, row, col):
         '''
         draw block, boarder, marker
         '''
-        # todo : set variables
-        left, top = self.left_top_coords_of_block(row, col)
-        left, top, block_color, border_color, marker_color = (0, 0, 0, 0, 0)
+        left, top = self.__left_top_coords_of_block(row, col)
+        marker_left, marker_top = self.__left_top_coords_of_marker(row, col)
 
-        self.draw_block_fill(left, top, block_color)
-        self.draw_block_border(left, top, border_color)
-        self.draw_block_marker(left, top, marker_color)
+        # get block color
+        block_color = board.get_block_color(row, col)
+
+        # get border color
+        block_count = board.get_block_overlap_count(row, col)
+        border_color = block_color
+        if block_count == 2:
+            border_color = GREEN
+        elif block_count > 2:
+            border_color = RED
+
+        # get marker color
+        marker_color = NOCOLOR
+        if board.is_marked(row, col):
+            marker_color = self.marker_default_border_color
+
+        # draw each part of block
+        self.__draw_block_fill(left, top, block_color)
+        self.__draw_block_border(left, top, border_color)
+        self.__draw_block_marker(marker_left, marker_top, marker_color)
 
 
-    def draw_block_fill(self, left, top, color):
-        '''
-        fill block with color
-        '''
-        pass
+    def __draw_block_fill(self, left, top, color):
+        if color == NOCOLOR:
+            return
+        rgb = color.get_rgb()
+        rect = (left, top, self.tile_size, self.tile_size)
+        self.__pygame_draw_rect(rgb, rect)
 
+    def __draw_block_border(self, left, top, color):
+        if color == NOCOLOR:
+            color = self.tile_default_border_color
+        rgb = color.get_rgb()
+        rect = (left, top, self.tile_size, self.tile_size)
+        border = self.tile_border_size
+        self.__pygame_draw_rect_border(rgb, rect, border)
 
-    def draw_block_border(self, left, top, color):
-        '''
-        draw block border with color
-        '''
-        pass
+    def __draw_block_marker(self, left, top, color):
+        if color == NOCOLOR:
+            return
+        rgb = color.get_rgb()
+        rect = (left, top, self.marker_size, self.marker_size)
+        border = self.marker_border_size
+        self.__pygame_draw_rect_border(rgb, rect, border)
 
+    def __pygame_draw_rect(self, rgb, rect):
+        self.pygame.draw.rect(self.displaysurf, rgb, rect)
 
-    def draw_block_marker(self, left, top, color):
-        '''
-        draw block marker with color
-        '''
-        pass
+    def __pygame_draw_rect_border(self, rgb, rect, border):
+        self.pygame.draw.rect(self.displaysurf, rgb, rect, border)
 
-    def left_top_coords_of_block(self, row, col):
+    def __left_top_coords_of_block(self, row, col):
         '''
         Convert (row, col) to pixel coordinates (left, top)
         '''
-        left = col * (self.tile_size + self.tile_size) + self.board_xmargin
-        top = row * (self.tile_size + self.tile_size) + self.board_ymargin
+        left = col * (self.tile_size + self.tile_margin) + self.board_xmargin
+        top = row * (self.tile_size + self.tile_margin) + self.board_ymargin
+        return (left, top)
+
+    def __left_top_coords_of_marker(self, row, col):
+        '''
+        Convert (row, col) to pixel coordinates (left, top)
+        '''
+        left, top = self.__left_top_coords_of_block(row, col)
+        left += (self.tile_size - self.marker_size) / 2
+        top += (self.tile_size - self.marker_size) / 2
         return (left, top)

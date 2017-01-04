@@ -93,19 +93,8 @@ class TilePlacementHelper(BoardInterface, PieceMovementHelper):
         return color
 
 
-    # Implemented PieceMovementHelper clear_marker
-    def clear_marker(self):
-        '''
-        clear tile marker
-        '''
-        self.tile = None
-        self.row = 0
-        self.col = 0
-        self.direction = DIRECTION.RIGHT
-
-
-    # Implemented PieceMovementHelper is_marked_block
-    def is_marked_block(self, row, col):
+    # Implemented BoardInterface
+    def is_marked(self, row, col):
         '''
         returns true if the position is marked
         '''
@@ -117,6 +106,18 @@ class TilePlacementHelper(BoardInterface, PieceMovementHelper):
             return True
 
         return False
+
+
+
+    # Implemented PieceMovementHelper clear_marker
+    def clear_marker(self):
+        '''
+        clear tile marker
+        '''
+        self.tile = None
+        self.row = 0
+        self.col = 0
+        self.direction = DIRECTION.RIGHT
 
 
     # Implemented PieceMovementHelper get_cur_row

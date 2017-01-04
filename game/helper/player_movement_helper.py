@@ -242,6 +242,17 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
         return self.board.get_block_color(row, col)
 
 
+    # Implemented BoardInterface
+    def is_marked(self, row, col):
+        '''
+        returns true if the position is marked
+        '''
+        if self.row == row and self.col == col:
+            return True
+        else:
+            return False
+
+
 
 
     # Implemented PieceMovementHelper
@@ -252,15 +263,6 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
         self.row = -1
         self.col = -1
 
-    # Implemented PieceMovementHelper
-    def is_marked_block(self, row, col):
-        '''
-        returns true if the position is marked
-        '''
-        if self.row == row and self.col == col:
-            return True
-        else:
-            return False
 
     # Implemented PieceMovementHelper
     def get_cur_row(self):
