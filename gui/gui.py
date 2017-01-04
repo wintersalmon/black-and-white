@@ -33,20 +33,6 @@ MAX_ROW = 5 # number of rows of icons
 XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
 
-# #            R    G    B
-# WHITE    = (255, 255, 255)
-# GRAY     = (100, 100, 100)
-# BLACK    = (  0,   0,   0)
-
-# NAVYBLUE = ( 60,  60, 100)
-# RED      = (255,   0,   0)
-# GREEN    = (  0, 255,   0)
-# BLUE     = (  0,   0, 255)
-# YELLOW   = (255, 255,   0)
-# ORANGE   = (255, 128,   0)
-# PURPLE   = (255,   0, 255)
-# CYAN     = (  0, 255, 255)
-
 BGCOLOR = NAVYBLUE
 LIGHTBGCOLOR = GRAY
 BOXCOLOR = WHITE
