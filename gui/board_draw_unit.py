@@ -75,6 +75,8 @@ class BoardDrawUnit():
         '''
         draw board and players to pygame displaysurf
         '''
+        if not board:
+            return
         if not isinstance(board, BoardInterface):
             raise ValueError('board must be instance of BoardInterface')
 

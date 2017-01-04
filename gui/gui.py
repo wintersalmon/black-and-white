@@ -19,8 +19,6 @@ from game.helper.pattern_update_helper import PatternUpdateHelper
 
 from gui.board_draw_unit import BoardDrawUnit
 
-
-FPS = 30 # frames per second, the general speed of the program
 WINDOWWIDTH = 640 # size of window's width in pixels
 WINDOWHEIGHT = 480 # size of windows' height in pixels
 
@@ -30,37 +28,30 @@ TILEBOARDERSIZE = 2 # size of tile boarder in pixels
 
 MAX_COL = 12 # number of columns of icons
 MAX_ROW = 5 # number of rows of icons
-
 XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
-
-BGCOLOR = NAVYBLUE
-LIGHTBGCOLOR = GRAY
-BOXCOLOR = WHITE
-HIGHLIGHTCOLOR = BLUE
-
-PLAYER_COLORS = [RED, BLUE, CYAN, ORANGE]
 
 class Gui():
     '''
     Graphic User Interface made with pygame
     '''
     def __init__(self):
+        # init pygame
+        pygame.init()
+        self.fps = 30
+        self.fpsclock = pygame.time.Clock()
+        self.displaysurf = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
+        self.displaysurf.fill(NAVYBLUE.get_rgb())
+        self.basicfont = pygame.font.Font('freesansbold.ttf', 18)
+
+        # init draw units
+        self.board_draw_unit = BoardDrawUnit(pygame, self.displaysurf)
+        self.board_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, NAVYBLUE)
+        self.board_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
+        self.board_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
+
+        # init game
         self.game = None
-        self.border_draw_unit = None
-        self.current_board_helper = None
-
-        self.players = list()
-
-        row, col = 0, 0
-        for player in self.players:
-            player.set_position(row, col)
-            row += 1
-
-        self.current_game_status = STATUS.TILE_PLACEMENT
-        self.current_player = None
-        self.current_tile = None
-        self.current_player_helper = PatternUpdateHelper()
         self.last_action_msg = None
 
 
@@ -68,6 +59,15 @@ class Gui():
         '''
         displays game init screen and handles event
         '''
+        self.game = Game()
+
+        player_info_list = list()
+        player_info_list.append(('WinterSalmon', RED))
+        player_info_list.append(('Kein', BLUE))
+        player_info_list.append(('Sshong91', CYAN))
+        player_info_list.append(('Wool', ORANGE))
+
+        self.game.init_game(player_info_list, MAX_ROW, MAX_COL)
 
 
     def credit(self):
@@ -81,74 +81,37 @@ class Gui():
         '''
         displays main game screen and handles event
         '''
-        # init pygame
-        global FPSCLOCK, DISPLAYSURF, BASICFONT
-        pygame.init()
-        FPSCLOCK = pygame.time.Clock()
-        BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
-        DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-        DISPLAYSURF.fill(BGCOLOR.get_rgb())
-
-        # init draw units
-        self.border_draw_unit = BoardDrawUnit(pygame, DISPLAYSURF)
-        self.border_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, BGCOLOR)
-        self.border_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
-        self.border_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
-
-        # init game Game
-        self.game = Game()
-
-        player_info_list = list()
-        player_info_list.append(('WinterSalmon', RED))
-        player_info_list.append(('Kein', BLUE))
-        player_info_list.append(('Sshong91', CYAN))
-        player_info_list.append(('Wool', ORANGE))
-
-        self.game.init_game(player_info_list, MAX_ROW, MAX_COL)
-
         while self.game.is_game_running():
             self.draw(self.game)
-            self.status = self.game.get_current_status()
+            status = self.game.get_current_status()
 
+            self.check_for_quit()
             for event in pygame.event.get():
-                if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
-                    pygame.quit()
-                    sys.exit()
-
-                elif self.status == STATUS.TILE_PLACEMENT:
+                if status == STATUS.TILE_PLACEMENT:
                     self.game.continue_status = self.handle_tile_placement_event(event)
 
-                elif self.status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+                elif status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
                     self.game.continue_status = self.handle_change_pattern_event(event)
 
-                elif self.status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
+                elif status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
                     self.game.continue_status = self.handle_set_start_point_event(event)
 
-                elif self.status == STATUS.PLAYER_MOVEMENT:
+                elif status == STATUS.PLAYER_MOVEMENT:
                     self.game.continue_status = self.handle_player_movement_event(event)
-
 
             self.game.update()
             pygame.display.update()
-            FPSCLOCK.tick(FPS)
+            self.fpsclock.tick(self.fps)
+        return
 
 
     def draw(self, game):
         '''
         draw game
         '''
-        self.draw_board(game.get_current_board(), game.players)
+        self.board_draw_unit.draw(game.get_current_board(), game.players)
         self.draw_player(game.get_current_player())
         self.draw_message(game.get_current_message())
-
-
-    def draw_board(self, board, players):
-        '''
-        Draw board
-        '''
-        if not board:
-            return
-        self.border_draw_unit.draw(board, players)
 
 
     def draw_player(self, player):
@@ -168,24 +131,24 @@ class Gui():
 
         player_name = player.get_name()
         player_number = player.get_number()
-        player_color = PLAYER_COLORS[player_number - 1]
+        player_color = player.get_color()
 
-        pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size))
+        pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size))
         left += tile_size + tile_margin
 
-        pressKeySurf = BASICFONT.render(player_name, True, WHITE.get_rgb())
+        pressKeySurf = self.basicfont.render(player_name, True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
-        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
+        self.displaysurf.blit(pressKeySurf, pressKeyRect)
 
         # player pattern
         top += next_position + tile_margin
         left = XMARGIN
 
-        pressKeySurf = BASICFONT.render('Pattern : ', True, WHITE.get_rgb())
+        pressKeySurf = self.basicfont.render('Pattern : ', True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
-        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
+        self.displaysurf.blit(pressKeySurf, pressKeyRect)
 
         # (left, top) = pressKeyRect.topright
         left += 90
@@ -204,19 +167,19 @@ class Gui():
             # elif symbol == COLOR.BLACK:
             #     symbol_color = BLACK
 
-            pygame.draw.rect(DISPLAYSURF, symbol.get_rgb(), (left, top, tile_size, tile_size))
+            pygame.draw.rect(self.displaysurf, symbol.get_rgb(), (left, top, tile_size, tile_size))
             if boarder:
-                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
             left += next_position
 
         # player Tiles
         top += next_position + tile_margin
         left = XMARGIN
 
-        pressKeySurf = BASICFONT.render('Tiles : ', True, WHITE.get_rgb())
+        pressKeySurf = self.basicfont.render('Tiles : ', True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (left, top)
-        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
+        self.displaysurf.blit(pressKeySurf, pressKeyRect)
 
         # (left, top) = pressKeyRect.topright
         left += 90
@@ -243,15 +206,15 @@ class Gui():
                 second_color = BLACK
 
             if boarder:
-                pygame.draw.rect(DISPLAYSURF, first_color.get_rgb(), (left, top, tile_size, tile_size))
-                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(self.displaysurf, first_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
                 left += tile_size
-                pygame.draw.rect(DISPLAYSURF, second_color.get_rgb(), (left, top, tile_size, tile_size))
-                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
+                pygame.draw.rect(self.displaysurf, second_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
             else:
-                pygame.draw.rect(DISPLAYSURF, first_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(self.displaysurf, first_color.get_rgb(), (left, top, tile_size, tile_size))
                 left += next_position
-                pygame.draw.rect(DISPLAYSURF, second_color.get_rgb(), (left, top, tile_size, tile_size))
+                pygame.draw.rect(self.displaysurf, second_color.get_rgb(), (left, top, tile_size, tile_size))
 
             left += next_position + tile_margin
 
@@ -263,20 +226,10 @@ class Gui():
         message = self.last_action_msg
         if not message:
             return
-        pressKeySurf = BASICFONT.render(message, True, WHITE.get_rgb())
+        pressKeySurf = self.basicfont.render(message, True, WHITE.get_rgb())
         pressKeyRect = pressKeySurf.get_rect()
         pressKeyRect.topleft = (XMARGIN, WINDOWHEIGHT - YMARGIN + 10)
-        DISPLAYSURF.blit(pressKeySurf, pressKeyRect)
-
-
-    def left_top_coords_of_box(self, col, row):
-        '''
-        docstring
-        '''
-        # Convert board coordinates to pixel coordinates
-        left = col * (TILESIZE + TILEMARGIN) + XMARGIN
-        top = row * (TILESIZE + TILEMARGIN) + YMARGIN
-        return (left, top)
+        self.displaysurf.blit(pressKeySurf, pressKeyRect)
 
 
     def handle_change_pattern_event(self, event):
@@ -295,7 +248,7 @@ class Gui():
             elif event.key == K_3:
                 self.game.pattern_update_helper.enqueue_change_color(BLACK)
                 self.last_action_msg = 'add pattern BLACK'
-            elif event.key == K_RETURN or event.key == K_SPACE:
+            elif event.key in (K_RETURN, K_SPACE):
                 if self.game.pattern_update_helper.can_save_player():
                     self.game.pattern_update_helper.save_player()
                     self.last_action_msg = 'Save Pattern'
@@ -336,25 +289,25 @@ class Gui():
                 self.game.tile_placement_helper.select_tile(3)
                 self.last_action_msg = 'Change Tile to 4'
 
-            elif event.key == K_LEFT or event.key == K_a:
+            elif event.key in (K_LEFT, K_a):
                 if self.game.tile_placement_helper.move_left():
                     self.last_action_msg = 'Move Tile Left'
                 else:
                     self.last_action_msg = 'Cannot move Tile Left'
 
-            elif event.key == K_RIGHT or event.key == K_d:
+            elif event.key in (K_RIGHT, K_d):
                 if self.game.tile_placement_helper.move_right():
                     self.last_action_msg = 'Move Tile Right'
                 else:
                     self.last_action_msg = 'Cannot move Tile Right'
 
-            elif event.key == K_UP or event.key == K_w:
+            elif event.key in (K_UP, K_w):
                 if self.game.tile_placement_helper.move_up():
                     self.last_action_msg = 'Move Tile Up'
                 else:
                     self.last_action_msg = 'Cannot move Tile Up'
 
-            elif event.key == K_DOWN or event.key == K_s:
+            elif event.key in (K_DOWN, K_s):
                 if self.game.tile_placement_helper.move_down():
                     self.last_action_msg = 'Move Tile Down'
                 else:
@@ -372,7 +325,7 @@ class Gui():
                 else:
                     self.last_action_msg = 'Cannot Rotate Tile Counter Clockwise'
 
-            elif event.key == K_RETURN or event.key == K_SPACE:
+            elif event.key in (K_RETURN, K_SPACE):
                 if self.game.tile_placement_helper.can_save_piece():
                     self.game.tile_placement_helper.save_piece()
                     self.game.tile_placement_helper.clear_marker()
@@ -398,39 +351,39 @@ class Gui():
         if event.type == KEYDOWN:
             if self.game.player_movement_helper.is_piece_initialized():
                 if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    if event.key == K_LEFT or event.key == K_a:
+                    if event.key in (K_LEFT, K_a):
                         self.game.player_movement_helper.move_left_shift()
                         self.last_action_msg = 'Shift Move Player LEFT'
 
-                    elif event.key == K_RIGHT or event.key == K_d:
+                    elif event.key in (K_RIGHT, K_d):
                         self.game.player_movement_helper.move_right_shift()
                         self.last_action_msg = 'Shift Move Player RIGHT'
 
-                    elif event.key == K_UP or event.key == K_w:
+                    elif event.key in (K_UP, K_w):
                         self.game.player_movement_helper.move_up_shift()
                         self.last_action_msg = 'Shift Move Player UP'
 
-                    elif event.key == K_DOWN or event.key == K_s:
+                    elif event.key in (K_DOWN, K_s):
                         self.game.player_movement_helper.move_down_shift()
                         self.last_action_msg = 'Shift Move Player DOWN'
                 else:
-                    if event.key == K_LEFT or event.key == K_a:
+                    if event.key in (K_LEFT, K_a):
                         self.game.player_movement_helper.move_left()
                         self.last_action_msg = 'Move Player LEFT'
 
-                    elif event.key == K_RIGHT or event.key == K_d:
+                    elif event.key in (K_RIGHT, K_d):
                         self.game.player_movement_helper.move_right()
                         self.last_action_msg = 'Move Player RIGHT'
 
-                    elif event.key == K_UP or event.key == K_w:
+                    elif event.key in (K_UP, K_w):
                         self.game.player_movement_helper.move_up()
                         self.last_action_msg = 'Move Player UP'
 
-                    elif event.key == K_DOWN or event.key == K_s:
+                    elif event.key in (K_DOWN, K_s):
                         self.game.player_movement_helper.move_down()
                         self.last_action_msg = 'Move Player DOWN'
 
-                    elif event.key == K_RETURN or event.key == K_SPACE:
+                    elif event.key in (K_RETURN, K_SPACE):
                         if self.game.player_movement_helper.can_save_piece():
                             self.game.player_movement_helper.save_piece()
                             self.game.player_movement_helper.clear_marker()
@@ -455,3 +408,12 @@ class Gui():
                     if self.game.player_movement_helper.set_start_point(4, 0):
                         self.last_action_msg = 'Player Start At[4,0]'
         return True
+
+    def check_for_quit(self):
+        '''
+        check for quit event and quit the game
+        '''
+        for event in pygame.event.get((QUIT, KEYUP)): # event handling loop
+            if event.type == QUIT or (event.type == KEYUP and event.key == K_ESCAPE):
+                pygame.quit()
+                sys.exit()
