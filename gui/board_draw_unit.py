@@ -6,7 +6,7 @@ Board Draw Unit for pygame
 
 
 from game.board.board_interface import BoardInterface
-from game.color.constant import *
+from game.color.constant import NOCOLOR, GREEN, RED
 
 
 class BoardDrawUnit():
