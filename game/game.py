@@ -95,11 +95,11 @@ class Game():
         return self.game_over
 
 
-    def init_game(self, player_names, max_row, max_col):
+    def init_game(self, player_info_list, max_row, max_col):
         '''
         initialize game
         '''
-        if not len(player_names) > 0:
+        if not len(player_info_list) > 0:
             raise ValueError('len(player_names) must be above zero')
         if not max_row > 0:
             raise ValueError('max_row must be above zero')
@@ -115,8 +115,10 @@ class Game():
         self.board = Board(max_row, max_col)
         self.deck = TileDeck()
         self.players.clear()
-        for number, name in enumerate(player_names):
-            player = Player(number + 1, name)
+        for number, info in enumerate(player_info_list):
+            name = info[0]
+            color = info[1]
+            player = Player(number + 1, name, color)
             self.players.append(player)
 
         self.tile_placement_helper = TilePlacementHelper(self.board)

@@ -71,18 +71,39 @@ class BoardDrawUnit():
         self.marker_default_border_color = color
 
 
-    def draw(self, board):
+    def draw(self, board, players):
         '''
-        draw board on screen
+        draw board and players to pygame displaysurf
         '''
         if not isinstance(board, BoardInterface):
             raise ValueError('board must be instance of BoardInterface')
 
         self.displaysurf.fill(self.board_backgound_color.get_rgb())
+        self.draw_board(board)
+        self.draw_players(players)
+
+
+    def draw_board(self, board):
+        '''
+        draw board to pygame displaysurf
+        '''
         for row in range(board.get_row_count()):
             for col in range(board.get_col_count()):
                 self.__draw_block(board, row, col)
 
+
+    def draw_players(self, players):
+        '''
+        draw players on board to pygame displaysurf
+        '''
+        for player in players:
+            row = player.get_position_row()
+            col = player.get_position_col()
+            number = player.get_number()
+            color = player.get_color()
+
+            if row != -1 and col != -1:
+                self.__draw_player_on_block(row, col, number, color)
 
     def __draw_block(self, board, row, col):
         '''
@@ -112,7 +133,6 @@ class BoardDrawUnit():
         self.__draw_block_border(left, top, border_color)
         self.__draw_block_marker(marker_left, marker_top, marker_color)
 
-
     def __draw_block_fill(self, left, top, color):
         if color == NOCOLOR:
             return
@@ -135,6 +155,33 @@ class BoardDrawUnit():
         rect = (left, top, self.marker_size, self.marker_size)
         border = self.marker_border_size
         self.__pygame_draw_rect_border(rgb, rect, border)
+
+    def __draw_player_on_block(self, row, col, number, color):
+        left, top = self.__left_top_coords_of_block(row, col)
+
+        p_margin = 2
+        p_size = self.tile_size / 2 - p_margin * 2
+        p_left = left + p_margin
+        p_top = top + p_margin
+        p_width = p_size
+        p_height = p_size
+
+        if number == 1:
+            pass
+        elif number == 2:
+            p_left += p_width + p_margin * 2
+        elif number == 3:
+            p_top += p_height + p_margin * 2
+        elif number == 4:
+            p_left += p_width + p_margin * 2
+            p_top += p_height + p_margin * 2
+        else:
+            raise ValueError('player number must be between 1 ~ 4')
+
+        rgb = color.get_rgb()
+        rect = (p_left, p_top, p_width, p_height)
+        self.__pygame_draw_rect(rgb, rect)
+
 
     def __pygame_draw_rect(self, rgb, rect):
         self.pygame.draw.rect(self.displaysurf, rgb, rect)

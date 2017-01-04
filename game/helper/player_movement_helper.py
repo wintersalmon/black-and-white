@@ -210,6 +210,15 @@ class PlayerMovementHelper(BoardInterface, PlayerInterface, PieceMovementHelper)
             return self.player.get_name()
         return None
 
+    # Implemented PlayerInterface
+    def get_color(self):
+        '''
+        get_color
+        '''
+        if self.player:
+            return self.player.get_color()
+        return None
+
 
 
 

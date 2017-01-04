@@ -97,8 +97,14 @@ class Gui():
 
         # init game Game
         self.game = Game()
-        player_names = ['WinterSalmon', 'Kein', 'Sshong91', 'Wool']
-        self.game.init_game(player_names, MAX_ROW, MAX_COL)
+
+        player_info_list = list()
+        player_info_list.append(('WinterSalmon', RED))
+        player_info_list.append(('Kein', BLUE))
+        player_info_list.append(('Sshong91', CYAN))
+        player_info_list.append(('Wool', ORANGE))
+
+        self.game.init_game(player_info_list, MAX_ROW, MAX_COL)
 
         while self.game.is_game_running():
             self.draw(self.game)
@@ -131,54 +137,18 @@ class Gui():
         '''
         draw game
         '''
-        self.draw_board(game.get_current_board())
-        self.draw_player_pieces(game.get_current_board(), game.get_players())
+        self.draw_board(game.get_current_board(), game.players)
         self.draw_player(game.get_current_player())
         self.draw_message(game.get_current_message())
 
 
-    def draw_board(self, board):
+    def draw_board(self, board, players):
         '''
         Draw board
         '''
         if not board:
             return
-        self.border_draw_unit.draw(board)
-
-
-    def draw_player_pieces(self, board, players):
-        '''
-        draw player pieces
-        '''
-        if not board or not players:
-            return
-
-        for player in players:
-            p_row, p_col = player.get_position()
-            if p_row >= 0 and p_col >= 0:
-                left, top = self.left_top_coords_of_box(p_col, p_row)
-                p_margin = 2
-                p_size = TILESIZE / 2 - p_margin * 2
-                p_left = left + p_margin
-                p_top = top + p_margin
-                p_width = p_size
-                p_height = p_size
-
-                number = player.get_number()
-
-                player_color = PLAYER_COLORS[number-1]
-
-                if number == 1:
-                    pass
-                if number == 2:
-                    p_left += p_width + p_margin * 2
-                if number == 3:
-                    p_top += p_height + p_margin * 2
-                if number == 4:
-                    p_left += p_width + p_margin * 2
-                    p_top += p_height + p_margin * 2
-
-                pygame.draw.rect(DISPLAYSURF, player_color.get_rgb(), (p_left, p_top, p_width, p_height))
+        self.border_draw_unit.draw(board, players)
 
 
     def draw_player(self, player):

@@ -13,8 +13,6 @@ class PlayerInterface():
     '''
     PlayerInterface
     '''
-
-
     def get_selected_tile(self):
         '''
         get_selected_tile
@@ -85,15 +83,23 @@ class PlayerInterface():
         raise NotImplementedError('You need to implement get_name')
 
 
+    def get_color(self):
+        '''
+        get_color
+        '''
+        raise NotImplementedError('You need to implement get_color')
+
+
 
 class Player(PlayerInterface):
     '''
     Player
     '''
-    def __init__(self, number, name):
+    def __init__(self, number, name, color):
         self.tiles = list()
         self.number = number
         self.name = name
+        self.color = color
         self.row = -1
         self.col = -1
         self.color_pattern = ColorPattern()
@@ -254,3 +260,10 @@ class Player(PlayerInterface):
         returns player name
         '''
         return self.name
+
+
+    def get_color(self):
+        '''
+        returns player color
+        '''
+        return self.color

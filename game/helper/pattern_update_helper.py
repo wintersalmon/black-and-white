@@ -175,3 +175,12 @@ class PatternUpdateHelper(PlayerInterface, PlayerUpdateHelper):
         if self.player:
             return self.player.get_name()
         return None
+
+    # Implemented PlayerInterface
+    def get_color(self):
+        '''
+        returns color
+        '''
+        if self.player:
+            return self.player.get_color()
+        return None
