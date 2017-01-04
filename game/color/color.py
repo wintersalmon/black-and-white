@@ -78,27 +78,3 @@ class Color():
         if result is NotImplemented:
             return result
         return not result
-
-    # def __add__(self, other):
-    #     if isinstance(other, Color):
-    #         return Color.mix_color(self.code, other.code)
-    #     return NotImplemented
-
-    # def __radd__(self, other):
-    #     if isinstance(other, Color):
-    #         return Color.mix_color(self.code, other.code)
-    #     return NotImplemented
-
-    # @staticmethod
-    # def mix_color(src_code, dst_code):
-    #     '''
-    #     Method Description
-    #     '''
-    #     if src_code == ColorCode.BLACK or dst_code == ColorCode.BLACK:
-    #         return COLOR.BLACK
-    #     elif src_code == COLOR.GRAY or dst_code == COLOR.GRAY:
-    #         return COLOR.GRAY
-    #     elif src_code == COLOR.WHITE or dst_code == COLOR.WHITE:
-    #         return COLOR.WHITE
-    #     else:
-    #         return COLOR.NOCOLOR
