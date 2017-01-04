@@ -1,32 +1,21 @@
 '''
 BLACK-AND-WHITE
 WinterSalmon
-Gui made with pygame
+Contains class Gui Graphic User Interface made with pygame
 '''
 import sys
 import random
-
 import pygame
 from pygame.locals import *
+
 from game.game import Game
-from game.board.color import COLOR
-from game.board.direction import DIRECTION
-from game.board.tile import TileWW, TileWG, TileWB, TileGB, TILE
-
 from game.board.board import Board
-
-from cli.choice.tile_placement_choice_selector import TilePlacementChoiceSelector
-
-from gui.board_drawer import BoardDrawer
+from game.board.tile import TILE
+from game.board.color import COLOR
+from game.status.status import STATUS
 from game.helper.tile_placement_helper import TilePlacementHelper
 from game.helper.player_movement_helper import PlayerMovementHelper
 from game.helper.pattern_update_helper import PatternUpdateHelper
-
-from game.status.status import STATUS
-
-from game.player import Player
-
-from game.pattern.color_pattern import ColorPattern
 
 
 FPS = 30 # frames per second, the general speed of the program
