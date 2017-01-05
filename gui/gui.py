@@ -16,9 +16,10 @@ from game.helper.tile_placement_helper import TilePlacementHelper
 from game.helper.player_movement_helper import PlayerMovementHelper
 from game.helper.pattern_update_helper import PatternUpdateHelper
 
+from gui.draw.draw_unit import DrawUnit
 from gui.draw.board_draw_unit import BoardDrawUnit
 from gui.draw.player_draw_unit import PlayerDrawUnit
-from gui.draw.draw_unit import DrawUnit
+from gui.draw.message_draw_unit import MessageDrawUnit
 
 WINDOWWIDTH = 640 # size of window's width in pixels
 WINDOWHEIGHT = 480 # size of windows' height in pixels
@@ -48,6 +49,7 @@ class Gui():
         self.draw_unit = DrawUnit(pygame, self.displaysurf, self.basicfont)
         self.board_draw_unit = BoardDrawUnit(self.draw_unit)
         self.player_draw_unit = PlayerDrawUnit(self.draw_unit)
+        self.message_draw_unit = MessageDrawUnit(self.draw_unit)
 
         # init game
         self.game = None
@@ -62,9 +64,8 @@ class Gui():
         self.board_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, NAVYBLUE)
         self.board_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
         self.board_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
-
-        self.player_draw_unit.init_board_size(WINDOWWIDTH, YMARGIN, XMARGIN, TILEMARGIN)
-        self.player_draw_unit.init_tile_size(TILESIZE/2, TILEMARGIN/2, 2, WHITE)
+        self.player_draw_unit.init(XMARGIN, TILEMARGIN, TILESIZE/2, TILEMARGIN/2, 2, WHITE)
+        self.message_draw_unit.init(XMARGIN, WINDOWHEIGHT - YMARGIN + 10, WHITE)
 
         self.game = Game()
 
@@ -86,52 +87,47 @@ class Gui():
 
     def run(self):
         '''
-        displays main game screen and handles event
+        main game loop
         '''
         while self.game.is_game_running():
-            self.draw(self.game)
-            status = self.game.get_current_status()
-
-            self.check_for_quit()
-            for event in pygame.event.get():
-                if status == STATUS.TILE_PLACEMENT:
-                    self.game.continue_status = self.handle_tile_placement_event(event)
-
-                elif status == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
-                    self.game.continue_status = self.handle_change_pattern_event(event)
-
-                elif status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
-                    self.game.continue_status = self.handle_set_start_point_event(event)
-
-                elif status == STATUS.PLAYER_MOVEMENT:
-                    self.game.continue_status = self.handle_player_movement_event(event)
-
-            self.game.update()
-            pygame.display.update()
-            self.fpsclock.tick(self.fps)
+            self.draw()
+            self.handle_events()
+            self.update()
         return
 
 
-    def draw(self, game):
+    def draw(self):
         '''
         draw game
         '''
-        self.board_draw_unit.draw(game.get_current_board(), game.players)
-        self.player_draw_unit.draw(game.get_current_player())
-        self.draw_message(game.get_current_message())
+        self.board_draw_unit.draw(self.game.get_current_board(), self.game.players)
+        self.player_draw_unit.draw(self.game.get_current_player())
+        self.message_draw_unit.draw(self.last_action_msg)
 
 
-    def draw_message(self, message):
+    def handle_events(self):
         '''
-        Draw Last Event Message To Screen
+        handle all events
         '''
-        message = self.last_action_msg
-        if not message:
-            return
-        pressKeySurf = self.basicfont.render(message, True, WHITE.get_rgb())
-        pressKeyRect = pressKeySurf.get_rect()
-        pressKeyRect.topleft = (XMARGIN, WINDOWHEIGHT - YMARGIN + 10)
-        self.displaysurf.blit(pressKeySurf, pressKeyRect)
+        self.check_for_quit()
+        for event in pygame.event.get():
+            if self.game.get_current_status() == STATUS.TILE_PLACEMENT:
+                self.game.continue_status = self.handle_tile_placement_event(event)
+            elif self.game.get_current_status() == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+                self.game.continue_status = self.handle_change_pattern_event(event)
+            elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
+                self.game.continue_status = self.handle_set_start_point_event(event)
+            elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT:
+                self.game.continue_status = self.handle_player_movement_event(event)
+
+
+    def update(self):
+        '''
+        update
+        '''
+        self.game.update()
+        pygame.display.update()
+        self.fpsclock.tick(self.fps)
 
 
     def handle_change_pattern_event(self, event):

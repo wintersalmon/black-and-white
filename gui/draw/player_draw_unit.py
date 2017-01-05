@@ -7,7 +7,6 @@ Player Draw Unit for pygame
 
 from gui.draw.draw_unit import DrawUnit
 from game.player import PlayerInterface
-from game.color.constant import WHITE
 
 
 class PlayerDrawUnit():
@@ -18,37 +17,26 @@ class PlayerDrawUnit():
         if not isinstance(draw_unit, DrawUnit):
             raise ValueError('draw_unit should be DrawUnit')
         self.draw_unit = draw_unit
-        # board size values
-        self.board_width = None
-        self.board_height = None
-        self.board_xmargin = None
-        self.board_ymargin = None
-        # tile size values
+        # size values
+        self.xmargin = None
+        self.ymargin = None
         self.tile_size = None
         self.tile_margin = None
         self.tile_border_size = None
-        self.tile_default_border_color = None
+        self.text_color = None
         self.next_position = None
 
 
-    def init_board_size(self, width, height, xmargin, ymargin):
+    def init(self, xmargin, ymargin, tile_size, tile_margin, tile_border_size, text_color):
         '''
         initialize board size
         '''
-        self.board_width = width
-        self.board_height = height
-        self.board_xmargin = xmargin
-        self.board_ymargin = ymargin
-
-
-    def init_tile_size(self, size, margin, border_size, color):
-        '''
-        initialize tile size
-        '''
-        self.tile_size = size
-        self.tile_margin = margin
-        self.tile_border_size = border_size
-        self.tile_default_border_color = color
+        self.xmargin = xmargin
+        self.ymargin = ymargin
+        self.tile_size = tile_size
+        self.tile_margin = tile_margin
+        self.tile_border_size = tile_border_size
+        self.text_color = text_color
         self.next_position = self.tile_size + self.tile_margin
 
 
@@ -59,8 +47,8 @@ class PlayerDrawUnit():
         if not player or not isinstance(player, PlayerInterface):
             return
 
-        left = self.board_xmargin
-        top = self.board_ymargin
+        left = self.xmargin
+        top = self.ymargin
         self.draw_player_info(left, top, player)
 
         top += self.next_position + self.tile_margin
@@ -75,7 +63,7 @@ class PlayerDrawUnit():
         draw player info
         '''
         player_rgb = player.get_color().get_rgb()
-        text_rgb = WHITE.get_rgb()
+        text_rgb = self.text_color.get_rgb()
 
         rect = (left, top, self.tile_size, self.tile_size)
         self.draw_unit.pygame_draw_rect(player_rgb, rect)
@@ -90,7 +78,7 @@ class PlayerDrawUnit():
         draw player pattern
         '''
         player_rgb = player.get_color().get_rgb()
-        text_rgb = WHITE.get_rgb()
+        text_rgb = self.text_color.get_rgb()
 
         # print text
         text = 'Pattern : '
@@ -115,7 +103,7 @@ class PlayerDrawUnit():
         '''
         player_rgb = player.get_color().get_rgb()
         text = 'Tiles : '
-        text_rgb = WHITE.get_rgb()
+        text_rgb = self.text_color.get_rgb()
         self.draw_unit.pygame_blit(text, left, top, text_rgb)
 
         left += 90
