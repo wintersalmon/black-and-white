@@ -5,6 +5,7 @@ Player Draw Unit for pygame
 '''
 
 
+from gui.draw.draw_unit import DrawUnit
 from game.player import PlayerInterface
 from game.color.constant import WHITE
 
@@ -13,16 +14,10 @@ class PlayerDrawUnit():
     '''
     Board Draw Unit for pygame
     '''
-    def __init__(self, pygame, displaysurf, basicfont):
-        if not pygame:
-            raise ValueError('pygame shuld not be None')
-
-        if not displaysurf:
-            raise ValueError('displaysurf shuld not be None')
-
-        self.pygame = pygame
-        self.displaysurf = displaysurf
-        self.basicfont = basicfont
+    def __init__(self, draw_unit):
+        if not isinstance(draw_unit, DrawUnit):
+            raise ValueError('draw_unit should be DrawUnit')
+        self.draw_unit = draw_unit
         # board size values
         self.board_width = None
         self.board_height = None
@@ -83,11 +78,11 @@ class PlayerDrawUnit():
         text_rgb = WHITE.get_rgb()
 
         rect = (left, top, self.tile_size, self.tile_size)
-        self.__pygame_draw_rect(player_rgb, rect)
+        self.draw_unit.pygame_draw_rect(player_rgb, rect)
 
         left += self.tile_size + self.tile_margin
         text = player.get_name()
-        self.__pygame_blit(text, left, top, text_rgb)
+        self.draw_unit.pygame_blit(text, left, top, text_rgb)
 
 
     def draw_player_pattern(self, left, top, player):
@@ -99,7 +94,7 @@ class PlayerDrawUnit():
 
         # print text
         text = 'Pattern : '
-        self.__pygame_blit(text, left, top, text_rgb)
+        self.draw_unit.pygame_blit(text, left, top, text_rgb)
 
         # print pattern tiles
         left += 90
@@ -108,9 +103,9 @@ class PlayerDrawUnit():
         for index, symbol in enumerate(pattern):
             rect = (left, top, self.tile_size, self.tile_size)
             tile_rgb = symbol.get_rgb()
-            self.__pygame_draw_rect(tile_rgb, rect)
+            self.draw_unit.pygame_draw_rect(tile_rgb, rect)
             if index == counter:
-                self.__pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
+                self.draw_unit.pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
             left += self.next_position
 
 
@@ -121,7 +116,7 @@ class PlayerDrawUnit():
         player_rgb = player.get_color().get_rgb()
         text = 'Tiles : '
         text_rgb = WHITE.get_rgb()
-        self.__pygame_blit(text, left, top, text_rgb)
+        self.draw_unit.pygame_blit(text, left, top, text_rgb)
 
         left += 90
         for idx in range(player.get_tile_count()):
@@ -131,21 +126,8 @@ class PlayerDrawUnit():
             tile_rgbs.append(tile.get_block(1).get_color().get_rgb())
             for rgb in tile_rgbs:
                 rect = (left, top, self.tile_size, self.tile_size)
-                self.__pygame_draw_rect(rgb, rect)
+                self.draw_unit.pygame_draw_rect(rgb, rect)
                 if tile == player.get_selected_tile():
-                    self.__pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
+                    self.draw_unit.pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
                 left += self.next_position
             left += self.tile_margin
-
-
-    def __pygame_draw_rect(self, rgb, rect):
-        self.pygame.draw.rect(self.displaysurf, rgb, rect)
-
-    def __pygame_draw_rect_border(self, rgb, rect, border):
-        self.pygame.draw.rect(self.displaysurf, rgb, rect, border)
-
-    def __pygame_blit(self, text, left, top, rgb):
-        press_key_surf = self.basicfont.render(text, True, rgb)
-        press_key_rect = press_key_surf.get_rect()
-        press_key_rect.topleft = (left, top)
-        self.displaysurf.blit(press_key_surf, press_key_rect)

@@ -5,6 +5,7 @@ Board Draw Unit for pygame
 '''
 
 
+from gui.draw.draw_unit import DrawUnit
 from game.board.board_interface import BoardInterface
 from game.color.constant import NOCOLOR, GREEN, RED
 
@@ -13,15 +14,10 @@ class BoardDrawUnit():
     '''
     Board Draw Unit for pygame
     '''
-    def __init__(self, pygame, displaysurf):
-        if not pygame:
-            raise ValueError('pygame shuld not be None')
-
-        if not displaysurf:
-            raise ValueError('displaysurf shuld not be None')
-
-        self.pygame = pygame
-        self.displaysurf = displaysurf
+    def __init__(self, draw_unit):
+        if not isinstance(draw_unit, DrawUnit):
+            raise ValueError('draw_unit should be DrawUnit')
+        self.draw_unit = draw_unit
         # board size values
         self.board_width = None
         self.board_height = None
@@ -80,7 +76,7 @@ class BoardDrawUnit():
         if not isinstance(board, BoardInterface):
             raise ValueError('board must be instance of BoardInterface')
 
-        self.displaysurf.fill(self.board_backgound_color.get_rgb())
+        self.draw_unit.pygame_fill_background(self.board_backgound_color.get_rgb())
         self.draw_board(board)
         self.draw_players(players)
 
@@ -140,7 +136,7 @@ class BoardDrawUnit():
             return
         rgb = color.get_rgb()
         rect = (left, top, self.tile_size, self.tile_size)
-        self.__pygame_draw_rect(rgb, rect)
+        self.draw_unit.pygame_draw_rect(rgb, rect)
 
     def __draw_block_border(self, left, top, color):
         if color == NOCOLOR:
@@ -148,7 +144,7 @@ class BoardDrawUnit():
         rgb = color.get_rgb()
         rect = (left, top, self.tile_size, self.tile_size)
         border = self.tile_border_size
-        self.__pygame_draw_rect_border(rgb, rect, border)
+        self.draw_unit.pygame_draw_rect_border(rgb, rect, border)
 
     def __draw_block_marker(self, left, top, color):
         if color == NOCOLOR:
@@ -156,7 +152,7 @@ class BoardDrawUnit():
         rgb = color.get_rgb()
         rect = (left, top, self.marker_size, self.marker_size)
         border = self.marker_border_size
-        self.__pygame_draw_rect_border(rgb, rect, border)
+        self.draw_unit.pygame_draw_rect_border(rgb, rect, border)
 
     def __draw_player_on_block(self, row, col, number, color):
         left, top = self.__left_top_coords_of_block(row, col)
@@ -182,14 +178,7 @@ class BoardDrawUnit():
 
         rgb = color.get_rgb()
         rect = (p_left, p_top, p_width, p_height)
-        self.__pygame_draw_rect(rgb, rect)
-
-
-    def __pygame_draw_rect(self, rgb, rect):
-        self.pygame.draw.rect(self.displaysurf, rgb, rect)
-
-    def __pygame_draw_rect_border(self, rgb, rect, border):
-        self.pygame.draw.rect(self.displaysurf, rgb, rect, border)
+        self.draw_unit.pygame_draw_rect(rgb, rect)
 
     def __left_top_coords_of_block(self, row, col):
         '''

@@ -16,8 +16,9 @@ from game.helper.tile_placement_helper import TilePlacementHelper
 from game.helper.player_movement_helper import PlayerMovementHelper
 from game.helper.pattern_update_helper import PatternUpdateHelper
 
-from gui.board_draw_unit import BoardDrawUnit
-from gui.player_draw_unit import PlayerDrawUnit
+from gui.draw.board_draw_unit import BoardDrawUnit
+from gui.draw.player_draw_unit import PlayerDrawUnit
+from gui.draw.draw_unit import DrawUnit
 
 WINDOWWIDTH = 640 # size of window's width in pixels
 WINDOWHEIGHT = 480 # size of windows' height in pixels
@@ -44,8 +45,9 @@ class Gui():
         self.displaysurf.fill(NAVYBLUE.get_rgb())
         self.basicfont = pygame.font.Font('freesansbold.ttf', 18)
 
-        self.board_draw_unit = BoardDrawUnit(pygame, self.displaysurf)
-        self.player_draw_unit = PlayerDrawUnit(pygame, self.displaysurf, self.basicfont)
+        self.draw_unit = DrawUnit(pygame, self.displaysurf, self.basicfont)
+        self.board_draw_unit = BoardDrawUnit(self.draw_unit)
+        self.player_draw_unit = PlayerDrawUnit(self.draw_unit)
 
         # init game
         self.game = None
