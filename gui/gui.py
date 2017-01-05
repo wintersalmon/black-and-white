@@ -4,7 +4,6 @@ WinterSalmon
 Contains class Gui Graphic User Interface made with pygame
 '''
 import sys
-import random
 import pygame
 from pygame.locals import *
 
@@ -18,6 +17,7 @@ from game.helper.player_movement_helper import PlayerMovementHelper
 from game.helper.pattern_update_helper import PatternUpdateHelper
 
 from gui.board_draw_unit import BoardDrawUnit
+from gui.player_draw_unit import PlayerDrawUnit
 
 WINDOWWIDTH = 640 # size of window's width in pixels
 WINDOWHEIGHT = 480 # size of windows' height in pixels
@@ -44,11 +44,8 @@ class Gui():
         self.displaysurf.fill(NAVYBLUE.get_rgb())
         self.basicfont = pygame.font.Font('freesansbold.ttf', 18)
 
-        # init draw units
         self.board_draw_unit = BoardDrawUnit(pygame, self.displaysurf)
-        self.board_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, NAVYBLUE)
-        self.board_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
-        self.board_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
+        self.player_draw_unit = PlayerDrawUnit(pygame, self.displaysurf, self.basicfont)
 
         # init game
         self.game = None
@@ -59,6 +56,14 @@ class Gui():
         '''
         displays game init screen and handles event
         '''
+        # init draw units
+        self.board_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, NAVYBLUE)
+        self.board_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
+        self.board_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
+
+        self.player_draw_unit.init_board_size(WINDOWWIDTH, YMARGIN, XMARGIN, TILEMARGIN)
+        self.player_draw_unit.init_tile_size(TILESIZE/2, TILEMARGIN/2, 2, WHITE)
+
         self.game = Game()
 
         player_info_list = list()
@@ -110,113 +115,8 @@ class Gui():
         draw game
         '''
         self.board_draw_unit.draw(game.get_current_board(), game.players)
-        self.draw_player(game.get_current_player())
+        self.player_draw_unit.draw(game.get_current_player())
         self.draw_message(game.get_current_message())
-
-
-    def draw_player(self, player):
-        '''
-        draw player
-        '''
-        if not player:
-            return
-
-        tile_size = TILESIZE / 2
-        tile_margin = TILEMARGIN / 2
-        next_position = tile_size + tile_margin
-
-        # player info line
-        top = TILEMARGIN
-        left = XMARGIN
-
-        player_name = player.get_name()
-        player_number = player.get_number()
-        player_color = player.get_color()
-
-        pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size))
-        left += tile_size + tile_margin
-
-        pressKeySurf = self.basicfont.render(player_name, True, WHITE.get_rgb())
-        pressKeyRect = pressKeySurf.get_rect()
-        pressKeyRect.topleft = (left, top)
-        self.displaysurf.blit(pressKeySurf, pressKeyRect)
-
-        # player pattern
-        top += next_position + tile_margin
-        left = XMARGIN
-
-        pressKeySurf = self.basicfont.render('Pattern : ', True, WHITE.get_rgb())
-        pressKeyRect = pressKeySurf.get_rect()
-        pressKeyRect.topleft = (left, top)
-        self.displaysurf.blit(pressKeySurf, pressKeyRect)
-
-        # (left, top) = pressKeyRect.topright
-        left += 90
-
-        counter = player.get_color_pattern_counter()
-        pattern = player.get_color_pattern().get_pattern()
-        for index, symbol in enumerate(pattern):
-            if index == counter:
-                boarder = True
-            else:
-                boarder = False
-            # if symbol == COLOR.WHITE:
-            #     symbol_color = WHITE
-            # elif symbol == COLOR.GRAY:
-            #     symbol_color = GRAY
-            # elif symbol == COLOR.BLACK:
-            #     symbol_color = BLACK
-
-            pygame.draw.rect(self.displaysurf, symbol.get_rgb(), (left, top, tile_size, tile_size))
-            if boarder:
-                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
-            left += next_position
-
-        # player Tiles
-        top += next_position + tile_margin
-        left = XMARGIN
-
-        pressKeySurf = self.basicfont.render('Tiles : ', True, WHITE.get_rgb())
-        pressKeyRect = pressKeySurf.get_rect()
-        pressKeyRect.topleft = (left, top)
-        self.displaysurf.blit(pressKeySurf, pressKeyRect)
-
-        # (left, top) = pressKeyRect.topright
-        left += 90
-
-        for idx in range(player.get_tile_count()):
-            tile = player.get_tile(idx)
-
-            if tile == player.get_selected_tile():
-                boarder = True
-            else:
-                boarder = False
-
-            if tile.get_type() == TILE.WW:
-                first_color = WHITE
-                second_color = WHITE
-            elif tile.get_type() == TILE.WG:
-                first_color = WHITE
-                second_color = GRAY
-            elif tile.get_type() == TILE.WB:
-                first_color = WHITE
-                second_color = BLACK
-            elif tile.get_type() == TILE.GB:
-                first_color = GRAY
-                second_color = BLACK
-
-            if boarder:
-                pygame.draw.rect(self.displaysurf, first_color.get_rgb(), (left, top, tile_size, tile_size))
-                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
-                left += tile_size
-                pygame.draw.rect(self.displaysurf, second_color.get_rgb(), (left, top, tile_size, tile_size))
-                pygame.draw.rect(self.displaysurf, player_color.get_rgb(), (left, top, tile_size, tile_size), 2)
-            else:
-                pygame.draw.rect(self.displaysurf, first_color.get_rgb(), (left, top, tile_size, tile_size))
-                left += next_position
-                pygame.draw.rect(self.displaysurf, second_color.get_rgb(), (left, top, tile_size, tile_size))
-
-            left += next_position + tile_margin
 
 
     def draw_message(self, message):
@@ -252,7 +152,6 @@ class Gui():
                 if self.game.pattern_update_helper.can_save_player():
                     self.game.pattern_update_helper.save_player()
                     self.last_action_msg = 'Save Pattern'
-                    print(self.last_action_msg)
                     return False
                 self.last_action_msg = 'Cannot Save Pattern'
         return True
