@@ -8,8 +8,8 @@ import pygame
 from pygame.locals import *
 
 from game.game import Game
-from game.board.board import Board
-from game.board.tile import TILE
+# from game.board.board import Board
+# from game.board.tile import TILE
 from game.color.constant import *
 from game.status.status import STATUS
 from game.board.direction import DIRECTION
