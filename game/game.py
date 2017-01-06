@@ -5,12 +5,15 @@ Class Name
 '''
 
 from game.player import Player
+from game.status.status import STATUS
 from game.board.board import Board
 from game.tile_deck import TileDeck
-from game.helper.player_movement_helper import PlayerMovementHelper
-from game.helper.tile_placement_helper import TilePlacementHelper
-from game.helper.pattern_update_helper import PatternUpdateHelper
-from game.status.status import STATUS
+from game.helper.player_tile_placement_helper import PlayerTilePlacementHelper
+from game.helper.player_piece_placement_helper import PlayerPiecePlacementHelper
+from game.helper.player_piece_movement_helper import PlayerPieceMovementHelper
+from game.helper.player_pattern_update_helper import PlayerPatternUpdateHelper
+
+
 
 class Game():
     '''
@@ -27,13 +30,15 @@ class Game():
         self.players = list()
         self.deck = None
 
-        self.tile_placement_helper = None
-        self.player_movement_helper = None
-        self.pattern_update_helper = None
+        self.player_tile_placement_helper = None
+        self.player_piece_placement_helper = None
+        self.player_piece_movement_helper = None
+        self.player_pattern_update_helper = None
 
-        self.current_board = None
+        self.current_board_interface = None
+        self.current_player_interface = None
+
         self.current_player = None
-        self.current_tile = None
         self.current_message = None
 
         self.rule_max_round_count = 0
@@ -58,14 +63,14 @@ class Game():
         '''
         returns current Board
         '''
-        return self.current_board
+        return self.current_board_interface
 
 
     def get_current_player(self):
         '''
         returns current Player
         '''
-        return self.current_player
+        return self.current_player_interface
 
 
     def get_current_message(self):
@@ -121,13 +126,13 @@ class Game():
             player = Player(number + 1, name, color)
             self.players.append(player)
 
-        self.tile_placement_helper = TilePlacementHelper(self.board)
-        self.player_movement_helper = PlayerMovementHelper(self.board)
-        self.pattern_update_helper = PatternUpdateHelper()
+        self.player_tile_placement_helper = PlayerTilePlacementHelper(self.board)
+        self.player_piece_placement_helper = PlayerPiecePlacementHelper(self.board)
+        self.player_piece_movement_helper = PlayerPieceMovementHelper(self.board)
+        self.player_pattern_update_helper = PlayerPatternUpdateHelper()
 
-        self.current_player = None
-        self.current_tile = None
-        self.current_board = None
+        self.current_player_interface = None
+        self.current_board_interface = None
 
         self.rule_max_round_count = 1
         self.current_round_count = 0
@@ -139,8 +144,8 @@ class Game():
         '''
         self.current_status = status
         self.continue_status = status_loop
-        self.current_board = board
-        self.current_player = player
+        self.current_board_interface = board
+        self.current_player_interface = player
 
 
     def update(self):
@@ -185,8 +190,8 @@ class Game():
                 self.current_round_count -= 1
                 self.__next_turn()
                 player = self.current_player
-                self.tile_placement_helper.set_piece(player)
-                board = self.tile_placement_helper
+                self.player_tile_placement_helper.set_target(player)
+                board = self.player_tile_placement_helper
                 self.change_status(STATUS.TILE_PLACEMENT, board, player, True)
             else:
                 self.current_round_count = 1 * len(self.players)
@@ -205,16 +210,26 @@ class Game():
                 self.current_round_count -= 1
                 self.__next_turn()
                 player = self.current_player
-                self.player_movement_helper.set_piece(player)
-                board = self.player_movement_helper
-                player = self.player_movement_helper
-                self.change_status(STATUS.PLAYER_MOVEMENT, board, player, True)
+                if player.get_position() == (-1, -1):
+                    self.player_piece_placement_helper.set_target(player)
+                    board = self.player_piece_placement_helper
+                    player = self.player_piece_placement_helper
+                    self.change_status(STATUS.PLAYER_MOVEMENT_SET_START_POINT, board, player, True)
+                else:
+                    self.player_piece_movement_helper.set_target(player)
+                    board = self.player_piece_movement_helper
+                    player = self.player_piece_movement_helper
+                    self.change_status(STATUS.PLAYER_MOVEMENT, board, player, True)
             else:
                 self.change_status(STATUS.NEXT_ROUND)
 
         elif self.current_status == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
             if not self.continue_status:
-                self.change_status(STATUS.PLAYER_MOVEMENT)
+                player = self.current_player
+                self.player_piece_movement_helper.set_target(player)
+                board = self.player_piece_movement_helper
+                player = self.player_piece_movement_helper
+                self.change_status(STATUS.PLAYER_MOVEMENT, board, player, True)
 
         elif self.current_status == STATUS.PLAYER_MOVEMENT:
             if not self.continue_status:

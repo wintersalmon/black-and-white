@@ -12,9 +12,10 @@ from game.board.board import Board
 from game.board.tile import TILE
 from game.color.constant import *
 from game.status.status import STATUS
-from game.helper.tile_placement_helper import TilePlacementHelper
-from game.helper.player_movement_helper import PlayerMovementHelper
-from game.helper.pattern_update_helper import PatternUpdateHelper
+from game.board.direction import DIRECTION
+# from game.helper.tile_placement_helper import TilePlacementHelper
+# from game.helper.player_movement_helper import PlayerMovementHelper
+# from game.helper.pattern_update_helper import PatternUpdateHelper
 
 from gui.draw.draw_unit import DrawUnit
 from gui.draw.board_draw_unit import BoardDrawUnit
@@ -33,6 +34,12 @@ MAX_ROW = 5 # number of rows of icons
 XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
 YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
 
+KEY_DIRECTIONS = [K_LEFT, K_a, K_RIGHT, K_d, K_UP, K_w, K_DOWN, K_s]
+KEY_ROTATION = [K_q, K_e]
+KEY_SELECTIONS = [K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0]
+KEY_OPTIONS = [K_BACKQUOTE]
+KEY_OKAY = [K_RETURN, K_SPACE]
+
 class Gui():
     '''
     Graphic User Interface made with pygame
@@ -46,12 +53,13 @@ class Gui():
         self.displaysurf.fill(NAVYBLUE.get_rgb())
         self.basicfont = pygame.font.Font('freesansbold.ttf', 18)
 
+        # init draw units
         self.draw_unit = DrawUnit(pygame, self.displaysurf, self.basicfont)
         self.board_draw_unit = BoardDrawUnit(self.draw_unit)
         self.player_draw_unit = PlayerDrawUnit(self.draw_unit)
         self.message_draw_unit = MessageDrawUnit(self.draw_unit)
 
-        # init game
+        # init game data
         self.game = None
         self.last_action_msg = None
 
@@ -116,7 +124,7 @@ class Gui():
             elif self.game.get_current_status() == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
                 self.game.continue_status = self.handle_change_pattern_event(event)
             elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
-                self.game.continue_status = self.handle_set_start_point_event(event)
+                self.game.continue_status = self.handle_player_placement_event(event)
             elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT:
                 self.game.continue_status = self.handle_player_movement_event(event)
 
@@ -134,24 +142,29 @@ class Gui():
         '''
         handle change pattern event
         '''
+        helper = self.game.player_pattern_update_helper
         if event.type == KEYDOWN:
-            if event.key == K_BACKQUOTE:
+            if event.key in KEY_OPTIONS:
                 return False
-            elif event.key == K_1:
-                self.game.pattern_update_helper.enqueue_change_color(WHITE)
-                self.last_action_msg = 'add pattern WHITE'
-            elif event.key == K_2:
-                self.game.pattern_update_helper.enqueue_change_color(GRAY)
-                self.last_action_msg = 'add pattern GRAY'
-            elif event.key == K_3:
-                self.game.pattern_update_helper.enqueue_change_color(BLACK)
-                self.last_action_msg = 'add pattern BLACK'
-            elif event.key in (K_RETURN, K_SPACE):
-                if self.game.pattern_update_helper.can_save_player():
-                    self.game.pattern_update_helper.save_player()
-                    self.last_action_msg = 'Save Pattern'
+
+            elif event.key in KEY_SELECTIONS:
+                select_option_list = [WHITE, GRAY, BLACK]
+                selection = self.get_selection(event.key, select_option_list)
+                result = helper.enqueue_color(selection)
+                event_type = 'Select Color'
+                event_param = selection.get_name()
+
+            elif event.key in KEY_OKAY:
+                if helper.can_save_target():
+                    helper.save_target()
+                    self.push_local_event(True, 'Change Player Pattern')
                     return False
-                self.last_action_msg = 'Cannot Save Pattern'
+                else:
+                    self.push_local_event(False, 'Change Player Pattern')
+                    return True
+
+            self.push_local_event(result, event_type, event_param)
+
         return True
 
 
@@ -159,152 +172,170 @@ class Gui():
         '''
         handle tile placement
         '''
+        helper = self.game.player_tile_placement_helper
         if event.type == KEYDOWN:
-            if event.key == K_BACKQUOTE:
+            if event.key in KEY_OPTIONS:
                 # todo : hide this CODE into game class
                 status = STATUS.TILE_PLACEMENT_CHANGE_PATTERN
                 board = self.game.get_current_board()
                 player = self.game.get_current_player()
-                self.game.pattern_update_helper.set_player(player)
-                player = self.game.pattern_update_helper
+                self.game.player_pattern_update_helper.set_target(player)
+                player = self.game.player_pattern_update_helper
                 self.game.change_status(status, board, player, True)
+                return True
                 # todo : hide this CODE into game class
 
-            elif event.key == K_1:
-                self.game.tile_placement_helper.select_tile(0)
-                self.last_action_msg = 'Change Tile to 1'
+            if event.key in KEY_SELECTIONS:
+                select_item_list = [x for x in range(3)]
+                selection = self.get_selection(event.key, select_item_list)
+                result = helper.change_selected_tile(selection)
+                event_type = 'Chage Tile'
+                event_param = selection.get_name()
 
-            elif event.key == K_2:
-                self.game.tile_placement_helper.select_tile(1)
-                self.last_action_msg = 'Change Tile to 2'
+            elif event.key in KEY_DIRECTIONS:
+                direction = self.get_direction(event.key)
+                result = helper.move(direction)
+                event_type = 'Move Tile'
+                event_param = direction.name
 
-            elif event.key == K_3:
-                self.game.tile_placement_helper.select_tile(2)
-                self.last_action_msg = 'Change Tile to 3'
+            elif event.key in KEY_ROTATION:
+                rotate = self.get_rotation(event.key)
+                result = helper.rotate(rotate)
+                event_type = 'Rotate Tile'
+                event_param = '{} Degress'.format(rotate * 90)
 
-            elif event.key == K_4:
-                self.game.tile_placement_helper.select_tile(3)
-                self.last_action_msg = 'Change Tile to 4'
-
-            elif event.key in (K_LEFT, K_a):
-                if self.game.tile_placement_helper.move_left():
-                    self.last_action_msg = 'Move Tile Left'
-                else:
-                    self.last_action_msg = 'Cannot move Tile Left'
-
-            elif event.key in (K_RIGHT, K_d):
-                if self.game.tile_placement_helper.move_right():
-                    self.last_action_msg = 'Move Tile Right'
-                else:
-                    self.last_action_msg = 'Cannot move Tile Right'
-
-            elif event.key in (K_UP, K_w):
-                if self.game.tile_placement_helper.move_up():
-                    self.last_action_msg = 'Move Tile Up'
-                else:
-                    self.last_action_msg = 'Cannot move Tile Up'
-
-            elif event.key in (K_DOWN, K_s):
-                if self.game.tile_placement_helper.move_down():
-                    self.last_action_msg = 'Move Tile Down'
-                else:
-                    self.last_action_msg = 'Cannot move Tile Down'
-
-            elif event.key == K_q:
-                if self.game.tile_placement_helper.rotate_clockwise():
-                    self.last_action_msg = 'Rotate Tile Clockwise'
-                else:
-                    self.last_action_msg = 'Cannot Rotate Tile Clockwise'
-
-            elif event.key == K_e:
-                if self.game.tile_placement_helper.rotate_counter_clockwise():
-                    self.last_action_msg = 'Rotate Tile Counter Clockwise'
-                else:
-                    self.last_action_msg = 'Cannot Rotate Tile Counter Clockwise'
-
-            elif event.key in (K_RETURN, K_SPACE):
-                if self.game.tile_placement_helper.can_save_piece():
-                    self.game.tile_placement_helper.save_piece()
-                    self.game.tile_placement_helper.clear_marker()
-                    self.last_action_msg = 'Save Tile'
+            elif event.key in KEY_OKAY:
+                if helper.can_save_target():
+                    helper.save_target()
+                    self.push_local_event(True, 'Save Tile')
                     return False
                 else:
-                    self.last_action_msg = 'Cannot Save Tile'
+                    self.push_local_event(False, 'Save Tile')
+                    return True
+
+            self.push_local_event(result, event_type, event_param)
 
         return True
 
 
-    def handle_set_start_point_event(self, event):
+    def handle_player_placement_event(self, event):
         '''
-        handle_set_start_point_event
+        handle_player_placement_event
         '''
-        pass
+        helper = self.game.player_piece_placement_helper
+        if event.type == KEYDOWN:
+            if event.key in KEY_DIRECTIONS:
+                direction = self.get_direction(event.key)
+                result = helper.move(direction)
+                event_type = 'Player Placement'
+                event_param = direction.name
+            elif event.key in KEY_OKAY:
+                if helper.can_save_target():
+                    helper.save_target()
+                    self.push_local_event(True, 'Player Placement')
+                    return False
+                else:
+                    self.push_local_event(False, 'Player Placement')
+                    return True
+
+            self.push_local_event(result, event_type, event_param)
+
+        return True
 
 
     def handle_player_movement_event(self, event):
         '''
         handle player change pattern
         '''
+        helper = self.game.player_piece_movement_helper
         if event.type == KEYDOWN:
-            if self.game.player_movement_helper.is_piece_initialized():
-                if pygame.key.get_mods() & pygame.KMOD_SHIFT:
-                    if event.key in (K_LEFT, K_a):
-                        self.game.player_movement_helper.move_left_shift()
-                        self.last_action_msg = 'Shift Move Player LEFT'
-
-                    elif event.key in (K_RIGHT, K_d):
-                        self.game.player_movement_helper.move_right_shift()
-                        self.last_action_msg = 'Shift Move Player RIGHT'
-
-                    elif event.key in (K_UP, K_w):
-                        self.game.player_movement_helper.move_up_shift()
-                        self.last_action_msg = 'Shift Move Player UP'
-
-                    elif event.key in (K_DOWN, K_s):
-                        self.game.player_movement_helper.move_down_shift()
-                        self.last_action_msg = 'Shift Move Player DOWN'
+            if event.key in KEY_DIRECTIONS:
+                direction = self.get_direction(event.key)
+                result = helper.move(direction)
+                event_type = 'Move Player'
+                event_param = direction.name
+            elif event.key in KEY_OKAY:
+                if helper.can_save_target():
+                    helper.save_target()
+                    self.push_local_event(True, 'Move Player')
+                    return False
                 else:
-                    if event.key in (K_LEFT, K_a):
-                        self.game.player_movement_helper.move_left()
-                        self.last_action_msg = 'Move Player LEFT'
-
-                    elif event.key in (K_RIGHT, K_d):
-                        self.game.player_movement_helper.move_right()
-                        self.last_action_msg = 'Move Player RIGHT'
-
-                    elif event.key in (K_UP, K_w):
-                        self.game.player_movement_helper.move_up()
-                        self.last_action_msg = 'Move Player UP'
-
-                    elif event.key in (K_DOWN, K_s):
-                        self.game.player_movement_helper.move_down()
-                        self.last_action_msg = 'Move Player DOWN'
-
-                    elif event.key in (K_RETURN, K_SPACE):
-                        if self.game.player_movement_helper.can_save_piece():
-                            self.game.player_movement_helper.save_piece()
-                            self.game.player_movement_helper.clear_marker()
-                            self.last_action_msg = 'Save Player'
-                            return False
-                        else:
-                            self.last_action_msg = 'Cannot Save Player'
+                    self.push_local_event(False, 'Move Player')
+                    return True
             else:
-                if event.key == K_1:
-                    if self.game.player_movement_helper.set_start_point(0, 0):
-                        self.last_action_msg = 'Player Start At[0,0]'
-                elif event.key == K_2:
-                    if self.game.player_movement_helper.set_start_point(1, 0):
-                        self.last_action_msg = 'Player Start At[1,0]'
-                elif event.key == K_3:
-                    if self.game.player_movement_helper.set_start_point(2, 0):
-                        self.last_action_msg = 'Player Start At[2,0]'
-                elif event.key == K_4:
-                    if self.game.player_movement_helper.set_start_point(3, 0):
-                        self.last_action_msg = 'Player Start At[3,0]'
-                elif event.key == K_5:
-                    if self.game.player_movement_helper.set_start_point(4, 0):
-                        self.last_action_msg = 'Player Start At[4,0]'
+                return True
+
+            self.push_local_event(result, event_type, event_param)
+
         return True
+
+
+    def get_direction(self, key):
+        '''
+        get key direction
+        '''
+        direction = None
+        if key in (K_LEFT, K_a):
+            direction = DIRECTION.LEFT
+        elif key in (K_RIGHT, K_d):
+            direction = DIRECTION.RIGHT
+        elif key in (K_UP, K_w):
+            direction = DIRECTION.UP
+        elif key in (K_DOWN, K_s):
+            direction = DIRECTION.DOWN
+        return direction
+
+
+    def get_rotation(self, key):
+        '''
+        get key rotation
+        '''
+        rotation = 0
+        if key == K_q:
+            rotation = 1
+        elif key == K_e:
+            rotation = 3
+        return rotation
+
+
+    def get_selection(self, key, select_option_list):
+        '''
+        get key selection
+        '''
+        idx = -1
+        if key == K_1:
+            idx = 0
+        elif key == K_2:
+            idx = 1
+        elif key == K_3:
+            idx = 2
+        elif key == K_4:
+            idx = 3
+        elif key == K_5:
+            idx = 4
+        elif key == K_6:
+            idx = 5
+        elif key == K_7:
+            idx = 6
+        elif key == K_8:
+            idx = 7
+        elif key == K_9:
+            idx = 8
+        elif key == K_0:
+            idx = 9
+        if 0 <= idx < len(select_option_list):
+            return select_option_list[idx]
+        else:
+            return None
+
+
+    def push_local_event(self, result, discription, param=''):
+        '''
+        push new local event
+        '''
+        event_result = 'SUCCESS' if result else 'FAILED'
+        self.last_action_msg = '[{}] {} {}'.format(event_result, discription, param)
+
 
     def check_for_quit(self):
         '''

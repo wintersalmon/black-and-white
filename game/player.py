@@ -181,7 +181,9 @@ class Player(PlayerInterface):
         tile = self.get_tile(index)
         if tile:
             self.selected_tile = self.tiles[index]
-        return tile
+            return tile
+        else:
+            return None
 
 
     def get_tile(self, index):
