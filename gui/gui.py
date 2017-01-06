@@ -8,14 +8,9 @@ import pygame
 from pygame.locals import *
 
 from game.game import Game
-# from game.board.board import Board
-# from game.board.tile import TILE
 from game.color.constant import *
 from game.status.status import STATUS
 from game.board.direction import DIRECTION
-# from game.helper.tile_placement_helper import TilePlacementHelper
-# from game.helper.player_movement_helper import PlayerMovementHelper
-# from game.helper.pattern_update_helper import PatternUpdateHelper
 
 from gui.draw.draw_unit import DrawUnit
 from gui.draw.board_draw_unit import BoardDrawUnit
