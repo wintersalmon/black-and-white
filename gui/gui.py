@@ -224,6 +224,7 @@ class Gui():
                 result = helper.move(direction)
                 event_type = 'Player Placement'
                 event_param = direction.name
+                self.push_local_event(result, event_type, event_param)
             elif event.key in KEY_OKAY:
                 if helper.can_save_target():
                     helper.save_target()
@@ -232,9 +233,6 @@ class Gui():
                 else:
                     self.push_local_event(False, 'Player Placement')
                     return True
-
-            self.push_local_event(result, event_type, event_param)
-
         return True
 
 
