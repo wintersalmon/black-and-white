@@ -138,6 +138,9 @@ class Gui():
         handle change pattern event
         '''
         helper = self.game.player_pattern_update_helper
+        result = False
+        event_type = 'Wrong Input'
+
         if event.type == KEYDOWN:
             if event.key in KEY_OPTIONS:
                 return False
@@ -158,8 +161,7 @@ class Gui():
                     self.push_local_event(False, 'Change Player Pattern')
                     return True
 
-            self.push_local_event(result, event_type, event_param)
-
+        self.push_local_event(result, event_type, event_param)
         return True
 
 
@@ -168,6 +170,9 @@ class Gui():
         handle tile placement
         '''
         helper = self.game.player_tile_placement_helper
+        result = False
+        event_type = 'Wrong Input'
+
         if event.type == KEYDOWN:
             if event.key in KEY_OPTIONS:
                 # todo : hide this CODE into game class
@@ -208,8 +213,7 @@ class Gui():
                     self.push_local_event(False, 'Save Tile')
                     return True
 
-            self.push_local_event(result, event_type, event_param)
-
+        self.push_local_event(result, event_type, event_param)
         return True
 
 
@@ -218,13 +222,16 @@ class Gui():
         handle_player_placement_event
         '''
         helper = self.game.player_piece_placement_helper
+        result = False
+        event_type = 'Wrong Input'
+
         if event.type == KEYDOWN:
             if event.key in KEY_DIRECTIONS:
                 direction = self.get_direction(event.key)
                 result = helper.move(direction)
                 event_type = 'Player Placement'
                 event_param = direction.name
-                self.push_local_event(result, event_type, event_param)
+
             elif event.key in KEY_OKAY:
                 if helper.can_save_target():
                     helper.save_target()
@@ -233,6 +240,8 @@ class Gui():
                 else:
                     self.push_local_event(False, 'Player Placement')
                     return True
+
+        self.push_local_event(result, event_type, event_param)
         return True
 
 
@@ -241,6 +250,9 @@ class Gui():
         handle player change pattern
         '''
         helper = self.game.player_piece_movement_helper
+        result = False
+        event_type = 'Wrong Input'
+
         if event.type == KEYDOWN:
             if event.key in KEY_DIRECTIONS:
                 direction = self.get_direction(event.key)
@@ -258,8 +270,7 @@ class Gui():
             else:
                 return True
 
-            self.push_local_event(result, event_type, event_param)
-
+        self.push_local_event(result, event_type, event_param)
         return True
 
 
