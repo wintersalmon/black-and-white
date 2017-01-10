@@ -17,17 +17,8 @@ from gui.draw.board_draw_unit import BoardDrawUnit
 from gui.draw.player_draw_unit import PlayerDrawUnit
 from gui.draw.message_draw_unit import MessageDrawUnit
 
-WINDOWWIDTH = 640 # size of window's width in pixels
-WINDOWHEIGHT = 480 # size of windows' height in pixels
-
-TILESIZE = 40 # size of tile height & width in pixels
-TILEMARGIN = 10 # size of tile margin between tiles in pixels
-TILEBOARDERSIZE = 2 # size of tile boarder in pixels
-
-MAX_COL = 12 # number of columns of icons
-MAX_ROW = 5 # number of rows of icons
-XMARGIN = int((WINDOWWIDTH - (MAX_COL * (TILESIZE + TILEMARGIN))) / 2)
-YMARGIN = int((WINDOWHEIGHT - (MAX_ROW * (TILESIZE + TILEMARGIN))) / 2)
+# MAX_COL = 12 # number of columns of icons
+# MAX_ROW = 5 # number of rows of icons
 
 KEY_DIRECTIONS = [K_LEFT, K_a, K_RIGHT, K_d, K_UP, K_w, K_DOWN, K_s]
 KEY_ROTATION = [K_q, K_e]
@@ -40,22 +31,41 @@ class Gui():
     Graphic User Interface made with pygame
     '''
     def __init__(self):
-        # init pygame
-        pygame.init()
-        self.fps = 30
-        self.fpsclock = pygame.time.Clock()
-        self.displaysurf = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-        self.displaysurf.fill(NAVYBLUE.get_rgb())
-        self.basicfont = pygame.font.Font('freesansbold.ttf', 18)
+        max_col = 12
+        max_row = 5
+
+        width = 640
+        height = 480
+
+        tile_size = 40
+        tile_margin = 10
+        tile_border_size = 2
+
+        margin_x = int((width - (max_col * (tile_size + tile_margin))) / 2)
+        margin_y = int((height - (max_row * (tile_size + tile_margin))) / 2)
 
         # init draw units
-        self.draw_unit = DrawUnit(pygame, self.displaysurf, self.basicfont)
+        self.draw_unit = DrawUnit(width, height, margin_x, margin_y, NAVYBLUE.get_rgb())
+
         self.board_draw_unit = BoardDrawUnit(self.draw_unit)
         self.player_draw_unit = PlayerDrawUnit(self.draw_unit)
         self.message_draw_unit = MessageDrawUnit(self.draw_unit)
 
+        # todo : clean up draw unit init code
+        self.board_draw_unit.init_board_size(width, height, margin_x, margin_y)
+        self.board_draw_unit.init_tile_size(tile_size, tile_margin, tile_border_size, WHITE)
+        self.board_draw_unit.init_marker_size(tile_size-10, tile_margin+5, tile_border_size, BLUE)
+        self.player_draw_unit.init(margin_x, tile_margin, tile_size/2, tile_margin/2, 2, WHITE)
+        self.message_draw_unit.init(margin_x, height - margin_y + 10, WHITE)
+
+        self.draw_unit_list = list()
+        self.draw_unit_list.append(self.draw_unit)
+        self.draw_unit_list.append(self.board_draw_unit)
+        self.draw_unit_list.append(self.player_draw_unit)
+        self.draw_unit_list.append(self.message_draw_unit)
+
         # init game data
-        self.game = None
+        self.game = Game(max_row, max_col)
         self.last_action_msg = None
 
 
@@ -63,22 +73,13 @@ class Gui():
         '''
         displays game init screen and handles event
         '''
-        # init draw units
-        self.board_draw_unit.init_board_size(WINDOWWIDTH, WINDOWHEIGHT, XMARGIN, YMARGIN, NAVYBLUE)
-        self.board_draw_unit.init_tile_size(TILESIZE, TILEMARGIN, TILEBOARDERSIZE, WHITE)
-        self.board_draw_unit.init_marker_size(TILESIZE-10, TILEMARGIN+5, TILEBOARDERSIZE, BLUE)
-        self.player_draw_unit.init(XMARGIN, TILEMARGIN, TILESIZE/2, TILEMARGIN/2, 2, WHITE)
-        self.message_draw_unit.init(XMARGIN, WINDOWHEIGHT - YMARGIN + 10, WHITE)
-
-        self.game = Game()
-
         player_info_list = list()
         player_info_list.append(('WinterSalmon', RED))
         player_info_list.append(('Kein', BLUE))
         player_info_list.append(('Sshong91', CYAN))
         player_info_list.append(('Wool', ORANGE))
 
-        self.game.init_game(player_info_list, MAX_ROW, MAX_COL)
+        self.game.init_game(player_info_list)
 
 
     def credit(self):
@@ -103,9 +104,8 @@ class Gui():
         '''
         draw game
         '''
-        self.board_draw_unit.draw(self.game.get_current_board(), self.game.players)
-        self.player_draw_unit.draw(self.game.get_current_player())
-        self.message_draw_unit.draw(self.last_action_msg)
+        for draw_unit in self.draw_unit_list:
+            draw_unit.draw(self.game)
 
 
     def handle_events(self):
@@ -130,7 +130,8 @@ class Gui():
         '''
         self.game.update()
         pygame.display.update()
-        self.fpsclock.tick(self.fps)
+        self.draw_unit.pygame_fpsclock_tick()
+        # self.fpsclock.tick(self.fps)
 
 
     def handle_change_pattern_event(self, event):
@@ -138,10 +139,10 @@ class Gui():
         handle change pattern event
         '''
         helper = self.game.player_pattern_update_helper
-        result = False
-        event_type = 'Wrong Input'
-
         if event.type == KEYDOWN:
+            result = False
+            event_type = 'Wrong Input'
+
             if event.key in KEY_OPTIONS:
                 return False
 
@@ -160,8 +161,7 @@ class Gui():
                 else:
                     self.push_local_event(False, 'Change Player Pattern')
                     return True
-
-        self.push_local_event(result, event_type, event_param)
+            self.push_local_event(result, event_type, event_param)
         return True
 
 
@@ -170,10 +170,10 @@ class Gui():
         handle tile placement
         '''
         helper = self.game.player_tile_placement_helper
-        result = False
-        event_type = 'Wrong Input'
-
         if event.type == KEYDOWN:
+            result = False
+            event_type = 'Wrong Input'
+            event_param = None
             if event.key in KEY_OPTIONS:
                 # todo : hide this CODE into game class
                 status = STATUS.TILE_PLACEMENT_CHANGE_PATTERN
@@ -213,7 +213,8 @@ class Gui():
                     self.push_local_event(False, 'Save Tile')
                     return True
 
-        self.push_local_event(result, event_type, event_param)
+            self.push_local_event(result, event_type, event_param)
+
         return True
 
 
@@ -222,10 +223,10 @@ class Gui():
         handle_player_placement_event
         '''
         helper = self.game.player_piece_placement_helper
-        result = False
-        event_type = 'Wrong Input'
-
         if event.type == KEYDOWN:
+            result = False
+            event_type = 'Wrong Input'
+            event_param = None
             if event.key in KEY_DIRECTIONS:
                 direction = self.get_direction(event.key)
                 result = helper.move(direction)
@@ -241,7 +242,8 @@ class Gui():
                     self.push_local_event(False, 'Player Placement')
                     return True
 
-        self.push_local_event(result, event_type, event_param)
+            self.push_local_event(result, event_type, event_param)
+
         return True
 
 
@@ -250,10 +252,10 @@ class Gui():
         handle player change pattern
         '''
         helper = self.game.player_piece_movement_helper
-        result = False
-        event_type = 'Wrong Input'
-
         if event.type == KEYDOWN:
+            result = False
+            event_type = 'Wrong Input'
+            event_param = None
             if event.key in KEY_DIRECTIONS:
                 direction = self.get_direction(event.key)
                 result = helper.move(direction)
@@ -270,7 +272,8 @@ class Gui():
             else:
                 return True
 
-        self.push_local_event(result, event_type, event_param)
+            self.push_local_event(result, event_type, event_param)
+
         return True
 
 
@@ -333,12 +336,16 @@ class Gui():
             return None
 
 
-    def push_local_event(self, result, discription, param=''):
+    def push_local_event(self, result, discription, param=None):
         '''
         push new local event
         '''
         event_result = 'SUCCESS' if result else 'FAILED'
-        self.last_action_msg = '[{}] {} {}'.format(event_result, discription, param)
+        param_str = param if param else ''
+        self.last_action_msg = '[{}] {} {}'.format(event_result, discription, param_str)
+        self.game.set_current_message(self.last_action_msg)
+        # print(self.last_action_msg)
+        # print(self.game.get_current_message())
 
 
     def check_for_quit(self):

@@ -30,10 +30,16 @@ class MessageDrawUnit():
         self.text_color = color
 
 
-    def draw(self, message):
+    def draw(self, game):
         '''
         message player to pygame displaysurf
         '''
+        message = None
+        if game:
+            message = game.get_current_message()
+        if not message:
+            return
+
         left = self.xmargin
         top = self.ymargin
         rgb = self.text_color.get_rgb()

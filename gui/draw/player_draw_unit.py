@@ -40,10 +40,15 @@ class PlayerDrawUnit():
         self.next_position = self.tile_size + self.tile_margin
 
 
-    def draw(self, player):
+    def draw(self, game):
         '''
         draw player to pygame displaysurf
         '''
+        if not game:
+            raise ValueError('game should not be none')
+
+        player = game.get_current_player()
+
         if not player or not isinstance(player, PlayerInterface):
             return
 

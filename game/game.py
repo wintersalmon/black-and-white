@@ -19,13 +19,15 @@ class Game():
     '''
     Class Description
     '''
-    def __init__(self):
+    def __init__(self, max_row, max_col):
         self.current_status = STATUS.NOSTATUS
         self.turn_counter = 0
         self.game_running = False
         self.game_over = False
         self.continue_status = False
 
+        self.max_row = max_row
+        self.max_col = max_col
         self.board = None
         self.players = list()
         self.deck = None
@@ -80,6 +82,13 @@ class Game():
         return self.current_message
 
 
+    def set_current_message(self, message):
+        '''
+        set current message
+        '''
+        self.current_message = message
+
+
     def is_game_running(self):
         '''
         returns True if game is running
@@ -100,16 +109,12 @@ class Game():
         return self.game_over
 
 
-    def init_game(self, player_info_list, max_row, max_col):
+    def init_game(self, player_info_list):
         '''
         initialize game
         '''
         if not len(player_info_list) > 0:
             raise ValueError('len(player_names) must be above zero')
-        if not max_row > 0:
-            raise ValueError('max_row must be above zero')
-        if not max_col > 0:
-            raise ValueError('max_col must be above zero')
 
         self.current_status = STATUS.GAME_START
         self.turn_counter = 0
@@ -117,7 +122,7 @@ class Game():
         self.game_over = False
         self.continue_status = False
 
-        self.board = Board(max_row, max_col)
+        self.board = Board(self.max_row, self.max_col)
         self.deck = TileDeck()
         self.players.clear()
         for number, info in enumerate(player_info_list):

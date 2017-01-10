@@ -23,7 +23,6 @@ class BoardDrawUnit():
         self.board_height = None
         self.board_xmargin = None
         self.board_ymargin = None
-        self.board_backgound_color = None
         # tile size values
         self.tile_size = None
         self.tile_margin = None
@@ -36,7 +35,7 @@ class BoardDrawUnit():
         self.marker_default_border_color = None
 
 
-    def init_board_size(self, width, height, xmargin, ymargin, bg_color):
+    def init_board_size(self, width, height, xmargin, ymargin):
         '''
         initialize board size
         '''
@@ -44,7 +43,6 @@ class BoardDrawUnit():
         self.board_height = height
         self.board_xmargin = xmargin
         self.board_ymargin = ymargin
-        self.board_backgound_color = bg_color
 
 
     def init_tile_size(self, size, margin, border_size, color):
@@ -67,16 +65,19 @@ class BoardDrawUnit():
         self.marker_default_border_color = color
 
 
-    def draw(self, board, players):
+    def draw(self, game):
         '''
         draw board and players to pygame displaysurf
         '''
-        if not board:
-            return
-        if not isinstance(board, BoardInterface):
-            raise ValueError('board must be instance of BoardInterface')
+        board = None
+        players = None
+        if game:
+            board = game.get_current_board()
+            players = game.players
 
-        self.draw_unit.pygame_fill_background(self.board_backgound_color.get_rgb())
+        if not board or not players:
+            return
+
         self.draw_board(board)
         self.draw_players(players)
 
