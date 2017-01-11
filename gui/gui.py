@@ -17,8 +17,10 @@ from gui.draw.board_draw_unit import BoardDrawUnit
 from gui.draw.player_draw_unit import PlayerDrawUnit
 from gui.draw.message_draw_unit import MessageDrawUnit
 
-# MAX_COL = 12 # number of columns of icons
-# MAX_ROW = 5 # number of rows of icons
+# from gui.handler.handle_change_pattern import HandleChangePattern
+# from gui.handler.handle_player_movement import HandlePlayerMovement
+# from gui.handler.handle_player_placement import HandlePlayerPlacement
+# from gui.handler.handle_tile_placement import HandleTilePlacement
 
 KEY_DIRECTIONS = [K_LEFT, K_a, K_RIGHT, K_d, K_UP, K_w, K_DOWN, K_s]
 KEY_ROTATION = [K_q, K_e]
@@ -63,6 +65,13 @@ class Gui():
         self.draw_unit_list.append(self.board_draw_unit)
         self.draw_unit_list.append(self.player_draw_unit)
         self.draw_unit_list.append(self.message_draw_unit)
+
+        # init handlers
+        self.handlers = dict()
+        self.handlers[STATUS.TILE_PLACEMENT] = self.handle_tile_placement_event
+        self.handlers[STATUS.TILE_PLACEMENT_CHANGE_PATTERN] = self.handle_change_pattern_event
+        self.handlers[STATUS.PLAYER_MOVEMENT_SET_START_POINT] = self.handle_player_placement_event
+        self.handlers[STATUS.PLAYER_MOVEMENT] = self.handle_player_movement_event
 
         # init game data
         self.game = Game(max_row, max_col)
@@ -113,15 +122,10 @@ class Gui():
         handle all events
         '''
         self.check_for_quit()
-        for event in pygame.event.get():
-            if self.game.get_current_status() == STATUS.TILE_PLACEMENT:
-                self.game.continue_status = self.handle_tile_placement_event(event)
-            elif self.game.get_current_status() == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
-                self.game.continue_status = self.handle_change_pattern_event(event)
-            elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT_SET_START_POINT:
-                self.game.continue_status = self.handle_player_placement_event(event)
-            elif self.game.get_current_status() == STATUS.PLAYER_MOVEMENT:
-                self.game.continue_status = self.handle_player_movement_event(event)
+        status = self.game.get_current_status()
+        if status in self.handlers.keys():
+            for event in pygame.event.get():
+                self.game.continue_status = self.handlers[status](event)
 
 
     def update(self):
