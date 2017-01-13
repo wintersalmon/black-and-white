@@ -47,6 +47,20 @@ class Game():
         self.current_round_count = 0
 
 
+    def get_max_row(self):
+        '''
+        returns default max row
+        '''
+        return self.max_row
+
+
+    def get_max_col(self):
+        '''
+        returns default max col
+        '''
+        return self.max_col
+
+
     def get_players(self):
         '''
         returns players

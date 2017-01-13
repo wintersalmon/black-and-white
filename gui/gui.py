@@ -12,11 +12,13 @@ from game.color.constant import *
 from game.status.status import STATUS
 from game.board.direction import DIRECTION
 
-from gui.draw.draw_unit import DrawUnit
-from gui.draw.draw_background import DrawBackground
-from gui.draw.draw_board import DrawBoard
-from gui.draw.draw_player import DrawPlayer
-from gui.draw.draw_message import DrawMessage
+from gui.gui_draw_unit import GuiDrawUnit
+
+# from gui.draw.draw_unit import DrawUnit
+# from gui.draw.draw_background import DrawBackground
+# from gui.draw.draw_board import DrawBoard
+# from gui.draw.draw_player import DrawPlayer
+# from gui.draw.draw_message import DrawMessage
 
 # from gui.handler.handle_change_pattern import HandleChangePattern
 # from gui.handler.handle_player_movement import HandlePlayerMovement
@@ -37,48 +39,50 @@ class Gui():
         max_col = 12
         max_row = 5
 
-        width = 640
-        height = 480
-        margin_x = 20
-        margin_y = 15
+        # width = 640
+        # height = 480
+        # margin_x = 20
+        # margin_y = 15
 
-        line_size = 30
-        text_color = WHITE
+        # line_size = 30
+        # text_color = WHITE
 
-        tile_size = 40
-        tile_margin = 10
-        tile_border_size = 2
+        # tile_size = 40
+        # tile_margin = 10
+        # tile_border_size = 2
 
-        marker_size = tile_size - 8
-        marker_margin = tile_margin + 4
-        marker_border_size = 2
+        # marker_size = tile_size - 8
+        # marker_margin = tile_margin + 4
+        # marker_border_size = 2
 
         # init game data
         self.game = Game(max_row, max_col)
         self.last_action_msg = None
 
+        self.gui_draw_unit = GuiDrawUnit(self.game)
+
         # init draw units
-        self.draw_unit = DrawUnit(width, height, margin_x, margin_y)
+        # self.draw_unit = DrawUnit(width, height, margin_x, margin_y)
 
-        self.draw_background = DrawBackground(self.draw_unit)
-        self.draw_background.init_background_color(NAVYBLUE)
+        # self.draw_background = DrawBackground(self.draw_unit)
+        # self.draw_background.init_background_color(NAVYBLUE)
 
-        self.draw_player = DrawPlayer(self.draw_unit, self.game, 0, 0)
-        self.draw_player.init_line_info(line_size, text_color)
-        self.draw_player.init_tile_info(tile_size/2, tile_margin/2, tile_border_size/2)
+        # self.draw_player = DrawPlayer(self.draw_unit, self.game, 0, 0)
+        # self.draw_player.init_line_info(line_size, text_color)
+        # self.draw_player.init_tile_info(tile_size/2, tile_margin/2, tile_border_size/2)
 
-        self.draw_board = DrawBoard(self.draw_unit, self.game, 0, 100)
-        self.draw_board.init_tile_info(tile_size, tile_margin, tile_border_size, WHITE)
-        self.draw_board.init_marker_info(marker_size, marker_margin, marker_border_size, BLUE)
+        # self.draw_board = DrawBoard(self.draw_unit, self.game, 0, 100)
+        # self.draw_board.init_tile_info(tile_size, tile_margin, tile_border_size, WHITE)
+        # self.draw_board.init_marker_info(marker_size, marker_margin, marker_border_size, BLUE)
 
-        self.draw_message = DrawMessage(self.draw_unit, self.game, 0, 350)
-        self.draw_message.init_line_info(line_size, text_color)
+        # self.draw_message = DrawMessage(self.draw_unit, self.game, 0, 350)
+        # self.draw_message.init_line_info(line_size, text_color)
 
-        self.draw_unit_list = list()
-        self.draw_unit_list.append(self.draw_background)
-        self.draw_unit_list.append(self.draw_player)
-        self.draw_unit_list.append(self.draw_board)
-        self.draw_unit_list.append(self.draw_message)
+        # self.draw_unit_list = list()
+        # self.draw_unit_list.append(self.draw_background)
+        # self.draw_unit_list.append(self.draw_player)
+        # self.draw_unit_list.append(self.draw_board)
+        # self.draw_unit_list.append(self.draw_message)
 
         # init handlers
         self.handlers = dict()
@@ -113,18 +117,19 @@ class Gui():
         main game loop
         '''
         while self.game.is_game_running():
-            self.draw()
+            # self.draw()
+            self.gui_draw_unit.draw()
             self.handle_events()
             self.update()
         return
 
 
-    def draw(self):
-        '''
-        draw game
-        '''
-        for draw_unit in self.draw_unit_list:
-            draw_unit.draw()
+    # def draw(self):
+    #     '''
+    #     draw game
+    #     '''
+    #     for draw_unit in self.draw_unit_list:
+    #         draw_unit.draw()
 
 
     def handle_events(self):
@@ -144,7 +149,8 @@ class Gui():
         '''
         self.game.update()
         pygame.display.update()
-        self.draw_unit.pygame_fps_tick()
+        # todo : get fps ticker out
+        self.gui_draw_unit.draw_unit.pygame_fps_tick()
 
 
     def handle_change_pattern_event(self, event):
