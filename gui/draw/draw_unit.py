@@ -78,7 +78,7 @@ class DrawUnit():
         press_key_rect.topleft = (left, top)
         self.displaysurf.blit(press_key_surf, press_key_rect)
 
-    def pygame_fpsclock_tick(self):
+    def pygame_fps_tick(self):
         '''
         tick fps clock
         '''
