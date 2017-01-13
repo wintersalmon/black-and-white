@@ -13,9 +13,10 @@ from game.status.status import STATUS
 from game.board.direction import DIRECTION
 
 from gui.draw.draw_unit import DrawUnit
-from gui.draw.board_draw_unit import BoardDrawUnit
-from gui.draw.player_draw_unit import PlayerDrawUnit
-from gui.draw.message_draw_unit import MessageDrawUnit
+from gui.draw.draw_background import DrawBackground
+from gui.draw.draw_board import DrawBoard
+from gui.draw.draw_player import DrawPlayer
+from gui.draw.draw_message import DrawMessage
 
 # from gui.handler.handle_change_pattern import HandleChangePattern
 # from gui.handler.handle_player_movement import HandlePlayerMovement
@@ -38,33 +39,46 @@ class Gui():
 
         width = 640
         height = 480
+        margin_x = 20
+        margin_y = 15
+
+        line_size = 30
+        text_color = WHITE
 
         tile_size = 40
         tile_margin = 10
         tile_border_size = 2
 
-        margin_x = int((width - (max_col * (tile_size + tile_margin))) / 2)
-        margin_y = int((height - (max_row * (tile_size + tile_margin))) / 2)
+        marker_size = tile_size - 8
+        marker_margin = tile_margin + 4
+        marker_border_size = 2
+
+        # init game data
+        self.game = Game(max_row, max_col)
+        self.last_action_msg = None
 
         # init draw units
-        self.draw_unit = DrawUnit(width, height, margin_x, margin_y, NAVYBLUE.get_rgb())
+        self.draw_unit = DrawUnit(width, height, margin_x, margin_y)
 
-        self.board_draw_unit = BoardDrawUnit(self.draw_unit)
-        self.player_draw_unit = PlayerDrawUnit(self.draw_unit)
-        self.message_draw_unit = MessageDrawUnit(self.draw_unit)
+        self.draw_background = DrawBackground(self.draw_unit)
+        self.draw_background.init_background_color(NAVYBLUE)
 
-        # todo : clean up draw unit init code
-        self.board_draw_unit.init_board_size(width, height, margin_x, margin_y)
-        self.board_draw_unit.init_tile_size(tile_size, tile_margin, tile_border_size, WHITE)
-        self.board_draw_unit.init_marker_size(tile_size-10, tile_margin+5, tile_border_size, BLUE)
-        self.player_draw_unit.init(margin_x, tile_margin, tile_size/2, tile_margin/2, 2, WHITE)
-        self.message_draw_unit.init(margin_x, height - margin_y + 10, WHITE)
+        self.draw_player = DrawPlayer(self.draw_unit, self.game, 0, 0)
+        self.draw_player.init_line_info(line_size, text_color)
+        self.draw_player.init_tile_info(tile_size/2, tile_margin/2, tile_border_size/2)
+
+        self.draw_board = DrawBoard(self.draw_unit, self.game, 0, 100)
+        self.draw_board.init_tile_info(tile_size, tile_margin, tile_border_size, WHITE)
+        self.draw_board.init_marker_info(marker_size, marker_margin, marker_border_size, BLUE)
+
+        self.draw_message = DrawMessage(self.draw_unit, self.game, 0, 350)
+        self.draw_message.init_line_info(line_size, text_color)
 
         self.draw_unit_list = list()
-        self.draw_unit_list.append(self.draw_unit)
-        self.draw_unit_list.append(self.board_draw_unit)
-        self.draw_unit_list.append(self.player_draw_unit)
-        self.draw_unit_list.append(self.message_draw_unit)
+        self.draw_unit_list.append(self.draw_background)
+        self.draw_unit_list.append(self.draw_player)
+        self.draw_unit_list.append(self.draw_board)
+        self.draw_unit_list.append(self.draw_message)
 
         # init handlers
         self.handlers = dict()
@@ -72,10 +86,6 @@ class Gui():
         self.handlers[STATUS.TILE_PLACEMENT_CHANGE_PATTERN] = self.handle_change_pattern_event
         self.handlers[STATUS.PLAYER_MOVEMENT_SET_START_POINT] = self.handle_player_placement_event
         self.handlers[STATUS.PLAYER_MOVEMENT] = self.handle_player_movement_event
-
-        # init game data
-        self.game = Game(max_row, max_col)
-        self.last_action_msg = None
 
 
     def init(self):
@@ -114,7 +124,7 @@ class Gui():
         draw game
         '''
         for draw_unit in self.draw_unit_list:
-            draw_unit.draw(self.game)
+            draw_unit.draw()
 
 
     def handle_events(self):

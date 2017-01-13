@@ -3,64 +3,71 @@ BLACK-AND-WHITE
 WinterSalmon
 Player Draw Unit for pygame
 '''
-
-
 from gui.draw.draw_unit import DrawUnit
+from game.game import Game
 from game.player import PlayerInterface
+from game.color.color import Color
 
 
-class PlayerDrawUnit():
+class DrawPlayer():
     '''
     Board Draw Unit for pygame
     '''
-    def __init__(self, draw_unit):
+    def __init__(self, draw_unit, game, offset_x, offset_y):
         if not isinstance(draw_unit, DrawUnit):
-            raise ValueError('draw_unit should be DrawUnit')
+            raise ValueError('draw_unit should be instance of DrawUnit')
+        if not isinstance(game, Game):
+            raise ValueError('game should be instance of Game')
+
         self.draw_unit = draw_unit
+        self.game = game
         # size values
-        self.xmargin = None
-        self.ymargin = None
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        # tile values
         self.tile_size = None
         self.tile_margin = None
         self.tile_border_size = None
+        # text values
         self.text_color = None
-        self.next_position = None
+        self.line_size = None
 
 
-    def init(self, xmargin, ymargin, tile_size, tile_margin, tile_border_size, text_color):
+    def init_tile_info(self, tile_size, tile_margin, tile_border_size):
         '''
-        initialize board size
+        initialize tile info
         '''
-        self.xmargin = xmargin
-        self.ymargin = ymargin
-        self.tile_size = tile_size
-        self.tile_margin = tile_margin
-        self.tile_border_size = tile_border_size
+        self.tile_size = int(tile_size)
+        self.tile_margin = int(tile_margin)
+        self.tile_border_size = int(tile_border_size)
+
+
+    def init_line_info(self, line_size, text_color):
+        '''
+        initialize line info
+        '''
+        if not isinstance(text_color, Color):
+            raise ValueError('bgcolor should be instance of Color')
+        self.line_size = int(line_size)
         self.text_color = text_color
-        self.next_position = self.tile_size + self.tile_margin
 
 
-    def draw(self, game):
+    def draw(self):
         '''
         draw player to pygame displaysurf
         '''
-        if not game:
-            raise ValueError('game should not be none')
+        # todo : improve code
+        player = self.game.get_current_player()
+        if player and isinstance(player, PlayerInterface):
+            left = self.offset_x + self.draw_unit.get_margin_x()
+            top = self.offset_y + self.draw_unit.get_margin_y()
+            self.draw_player_info(left, top, player)
 
-        player = game.get_current_player()
+            top += self.line_size + self.tile_margin
+            self.draw_player_pattern(left, top, player)
 
-        if not player or not isinstance(player, PlayerInterface):
-            return
-
-        left = self.xmargin
-        top = self.ymargin
-        self.draw_player_info(left, top, player)
-
-        top += self.next_position + self.tile_margin
-        self.draw_player_pattern(left, top, player)
-
-        top += self.next_position + self.tile_margin
-        self.draw_player_tiles(left, top, player)
+            top += self.line_size + self.tile_margin
+            self.draw_player_tiles(left, top, player)
 
 
     def draw_player_info(self, left, top, player):
@@ -99,7 +106,7 @@ class PlayerDrawUnit():
             self.draw_unit.pygame_draw_rect(tile_rgb, rect)
             if index == counter:
                 self.draw_unit.pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
-            left += self.next_position
+            left += self.line_size
 
 
     def draw_player_tiles(self, left, top, player):
@@ -122,5 +129,5 @@ class PlayerDrawUnit():
                 self.draw_unit.pygame_draw_rect(rgb, rect)
                 if tile == player.get_selected_tile():
                     self.draw_unit.pygame_draw_rect_border(player_rgb, rect, self.tile_border_size)
-                left += self.next_position
+                left += self.line_size
             left += self.tile_margin

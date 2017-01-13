@@ -1,0 +1,12 @@
+		draw_background
+		draw_player
+		draw_board
+		draw_message
+		|
+GUI	-	draw_unit		-	data_interface	-	GAME
+CLI	-	handle_event_unit	-	data_helper	-	GAME
+		|
+		handle_change_pattern
+		handle_player_movement
+		handle_player_placement
+		handle_tile_placement

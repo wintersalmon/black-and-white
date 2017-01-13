@@ -3,26 +3,29 @@ BLACK-AND-WHITE
 WinterSalmon
 Board Draw Unit for pygame
 '''
-
-
 from gui.draw.draw_unit import DrawUnit
+from game.game import Game
 from game.board.board_interface import BoardInterface
 from game.color.constant import NOCOLOR, GREEN, RED
 
 
-class BoardDrawUnit():
+class DrawBoard():
     '''
     Board Draw Unit for pygame
     '''
-    def __init__(self, draw_unit):
+    def __init__(self, draw_unit, game, offset_x=0, offset_y=0):
         if not isinstance(draw_unit, DrawUnit):
-            raise ValueError('draw_unit should be DrawUnit')
+            raise ValueError('draw_unit should be instance of DrawUnit')
+        if not isinstance(game, Game):
+            raise ValueError('game should be instance of Game')
+
         self.draw_unit = draw_unit
-        # board size values
-        self.board_width = None
-        self.board_height = None
-        self.board_xmargin = None
-        self.board_ymargin = None
+        self.game = game
+        # size values
+        self.board_width = self.draw_unit.get_width()
+        self.board_height = self.draw_unit.get_height()
+        self.offset_x = offset_x
+        self.offset_y = offset_y
         # tile size values
         self.tile_size = None
         self.tile_margin = None
@@ -35,54 +38,41 @@ class BoardDrawUnit():
         self.marker_default_border_color = None
 
 
-    def init_board_size(self, width, height, xmargin, ymargin):
-        '''
-        initialize board size
-        '''
-        self.board_width = width
-        self.board_height = height
-        self.board_xmargin = xmargin
-        self.board_ymargin = ymargin
-
-
-    def init_tile_size(self, size, margin, border_size, color):
+    def init_tile_info(self, size, margin, border_size, color):
         '''
         initialize tile size
         '''
-        self.tile_size = size
-        self.tile_margin = margin
-        self.tile_border_size = border_size
+        self.tile_size = int(size)
+        self.tile_margin = int(margin)
+        self.tile_border_size = int(border_size)
         self.tile_default_border_color = color
 
 
-    def init_marker_size(self, size, margin, border_size, color):
+    def init_marker_info(self, size, margin, border_size, color):
         '''
         initialize tile size
         '''
-        self.marker_size = size
-        self.marker_margin = margin
-        self.marker_border_size = border_size
+        self.marker_size = int(size)
+        self.marker_margin = int(margin)
+        self.marker_border_size = int(border_size)
         self.marker_default_border_color = color
 
 
-    def draw(self, game):
+    def draw(self):
         '''
         draw board and players to pygame displaysurf
         '''
-        board = None
-        players = None
-        if game:
-            board = game.get_current_board()
-            players = game.players
+        board = self.game.get_current_board()
+        players = self.game.players
 
-        if not board or not players:
-            return
+        if board and isinstance(board, BoardInterface):
+            self._draw_board(board)
 
-        self.draw_board(board)
-        self.draw_players(players)
+        if players and isinstance(players, list) and len(players) > 0:
+            self._draw_players(players)
 
 
-    def draw_board(self, board):
+    def _draw_board(self, board):
         '''
         draw board to pygame displaysurf
         '''
@@ -91,7 +81,7 @@ class BoardDrawUnit():
                 self.__draw_block(board, row, col)
 
 
-    def draw_players(self, players):
+    def _draw_players(self, players):
         '''
         draw players on board to pygame displaysurf
         '''
@@ -185,8 +175,10 @@ class BoardDrawUnit():
         '''
         Convert (row, col) to pixel coordinates (left, top)
         '''
-        left = col * (self.tile_size + self.tile_margin) + self.board_xmargin
-        top = row * (self.tile_size + self.tile_margin) + self.board_ymargin
+        margin_x = self.draw_unit.get_margin_x() + self.offset_x
+        margin_y = self.draw_unit.get_margin_y() + self.offset_y
+        left = col * (self.tile_size + self.tile_margin) + margin_x
+        top = row * (self.tile_size + self.tile_margin) + margin_y
         return (left, top)
 
     def __left_top_coords_of_marker(self, row, col):
