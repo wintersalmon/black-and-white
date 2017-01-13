@@ -23,6 +23,7 @@ class GuiDrawUnit():
         # init
         max_row = game.get_max_row()
         max_col = game.get_max_col()
+        # todo : change window size to adapt to max row,col
 
         width = 640
         height = 480
