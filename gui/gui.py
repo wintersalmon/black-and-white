@@ -144,8 +144,7 @@ class Gui():
         '''
         self.game.update()
         pygame.display.update()
-        self.draw_unit.pygame_fpsclock_tick()
-        # self.fpsclock.tick(self.fps)
+        self.draw_unit.pygame_fps_tick()
 
 
     def handle_change_pattern_event(self, event):
