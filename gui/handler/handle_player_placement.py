@@ -27,8 +27,20 @@ class HandlePlayerPlacement(HandleEvent):
         self.add_key_down(K_d, lambda: self.handle_event_move(DIRECTION.RIGHT))
         self.add_key_down(K_a, lambda: self.handle_event_move(DIRECTION.LEFT))
 
+        self.add_key_down(K_BACKQUOTE, self.handle_event_skip)
+
         self.add_key_down(K_RETURN, self.handle_event_confirm)
         self.add_key_down(K_SPACE, self.handle_event_confirm)
+
+
+    def handle_event_skip(self):
+        '''
+        handle skip event
+        '''
+        event_result = True
+        event_title = 'Skip Player Placement'
+        self.game.continue_status = False
+        return self.create_local_message(event_result, event_title)
 
     def handle_event_move(self, direction):
         '''

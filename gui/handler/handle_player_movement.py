@@ -32,9 +32,20 @@ class HandlePlayerMovement(HandleEvent):
         self.add_key_down(K_3, lambda: self.handle_event_select_tile(3))
         self.add_key_down(K_4, lambda: self.handle_event_select_tile(4))
 
+        self.add_key_down(K_BACKQUOTE, self.handle_event_skip)
+
         self.add_key_down(K_RETURN, self.handle_event_confirm)
         self.add_key_down(K_SPACE, self.handle_event_confirm)
 
+
+    def handle_event_skip(self):
+        '''
+        handle skip event
+        '''
+        event_result = True
+        event_title = 'Skip Player Movement'
+        self.game.continue_status = False
+        return self.create_local_message(event_result, event_title)
 
     def handle_event_confirm(self):
         '''

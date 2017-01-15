@@ -281,3 +281,28 @@ class Game():
             self.current_player = player
             return True
         return False
+
+
+    def set_mode_tile_placement(self):
+        '''
+        change mode to tile placement
+        '''
+        if self.get_current_status() == STATUS.TILE_PLACEMENT_CHANGE_PATTERN:
+            status = STATUS.TILE_PLACEMENT
+            player = self.current_player
+            self.player_tile_placement_helper.set_target(player)
+            board = self.player_tile_placement_helper
+            self.change_status(status, board, player, True)
+
+
+    def set_mode_change_pattern(self):
+        '''
+        change mode to tile placement
+        '''
+        if self.get_current_status() == STATUS.TILE_PLACEMENT:
+            status = STATUS.TILE_PLACEMENT_CHANGE_PATTERN
+            board = self.get_current_board()
+            player = self.get_current_player()
+            self.player_pattern_update_helper.set_target(player)
+            player = self.player_pattern_update_helper
+            self.change_status(status, board, player, True)

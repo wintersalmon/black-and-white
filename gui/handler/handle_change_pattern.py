@@ -24,19 +24,31 @@ class HandleChangePattern(HandleEvent):
         self.add_key_down(K_g, lambda: self.handle_event_select_color(GRAY))
         self.add_key_down(K_b, lambda: self.handle_event_select_color(BLACK))
 
-        self.add_key_down(K_BACKQUOTE, self.handle_event_cancel)
+        self.add_key_down(K_BACKQUOTE, self.handle_event_skip)
+        self.add_key_down(K_TAB, self.handle_event_change_mode)
 
         self.add_key_down(K_RETURN, self.handle_event_confirm)
         self.add_key_down(K_SPACE, self.handle_event_confirm)
 
-    def handle_event_cancel(self):
+
+    def handle_event_change_mode(self):
         '''
-        handle cancel event
+        handle change mode event
+        '''
+        event_result = self.game.set_mode_tile_placement()
+        event_title = 'Change Mode Tile Placement'
+        return self.create_local_message(event_result, event_title)
+
+
+    def handle_event_skip(self):
+        '''
+        handle skip event
         '''
         event_result = True
-        event_title = 'Cancel Change Pattern'
+        event_title = 'Skip Change Pattern'
         self.game.continue_status = False
         return self.create_local_message(event_result, event_title)
+
 
     def handle_event_confirm(self):
         '''

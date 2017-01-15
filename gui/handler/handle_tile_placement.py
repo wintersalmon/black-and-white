@@ -42,9 +42,19 @@ class HandleTilePlacement(HandleEvent):
         self.add_key_down(K_q, lambda: self.handle_event_rotate(3))
 
         self.add_key_down(K_BACKQUOTE, self.handle_event_change_pattern)
+        self.add_key_down(K_TAB, self.handle_event_change_mode)
 
         self.add_key_down(K_RETURN, self.handle_event_confirm)
         self.add_key_down(K_SPACE, self.handle_event_confirm)
+
+
+    def handle_event_change_mode(self):
+        '''
+        handle change mode event
+        '''
+        event_result = self.game.set_mode_change_pattern()
+        event_title = 'Change Mode To Pattern'
+        return self.create_local_message(event_result, event_title)
 
 
     def handle_event_change_pattern(self):
