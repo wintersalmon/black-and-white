@@ -3,57 +3,50 @@ BLACK-AND-WHITE
 WinterSalmon
 Cli
 '''
-
 from game.game import Game
+from game.color.constant import RED, BLUE, CYAN, ORANGE
+
 
 class Cli():
     '''
     Command Line Interface for the game
     '''
     def __init__(self):
-        self.game_Game = None
+        # init row, col
+        max_row = 5
+        max_col = 12
 
-    def start(self, game_Game):
-        '''
-        init with game Game and start the game
-        '''
-        if isinstance(game_Game, Game):
-            self.game_Game = game_Game
-        else:
-            self.game_Game = None
+        # init Game
+        self.game = Game(max_row, max_col)
 
-    def next(self):
-        '''
-        Method Description
-        '''
-        return False
+        # init Draw Unit
 
-    def update(self):
-        '''
-        update game date
-        '''
-        return
+        # init Event Handler
 
-    def show(self):
-        '''
-        show game status to screen
-        '''
-        return
+        # init fps_clock
 
-    def has_action_input(self):
-        '''
-        returns whether game stauts requires action input
-        '''
-        return False
 
-    def show_action_input(self):
+    def init_screen(self):
         '''
-        show required action input to screen
+        displays game init screen and handle events
         '''
-        return
+        player_info_list = list()
+        player_info_list.append(('WinterSalmon', RED))
+        player_info_list.append(('Kein', BLUE))
+        player_info_list.append(('Sshong91', CYAN))
+        player_info_list.append(('Wool', ORANGE))
+        self.game.init_game(player_info_list)
 
-    def action_input(self):
+
+    def credit_screen(self):
         '''
-        recieve action input from user
+        displays game credit screen and handles event
         '''
-        return
+        pass
+
+
+    def game_screen(self):
+        '''
+        displays main game screen and handles event
+        '''
+        pass
