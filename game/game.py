@@ -3,7 +3,6 @@ BLACK-AND-WHITE
 WinterSalmon
 Class Name
 '''
-
 from game.player import Player
 from game.status.status import STATUS
 from game.board.board import Board
@@ -12,7 +11,6 @@ from game.helper.player_tile_placement_helper import PlayerTilePlacementHelper
 from game.helper.player_piece_placement_helper import PlayerPiecePlacementHelper
 from game.helper.player_piece_movement_helper import PlayerPieceMovementHelper
 from game.helper.player_pattern_update_helper import PlayerPatternUpdateHelper
-
 
 
 class Game():
@@ -28,14 +26,14 @@ class Game():
 
         self.max_row = max_row
         self.max_col = max_col
-        self.board = None
+        self.board = Board(self.max_row, self.max_col)
         self.players = list()
         self.deck = None
 
-        self.player_tile_placement_helper = None
-        self.player_piece_placement_helper = None
-        self.player_piece_movement_helper = None
-        self.player_pattern_update_helper = None
+        self.player_tile_placement_helper = PlayerTilePlacementHelper(self.board)
+        self.player_piece_placement_helper = PlayerPiecePlacementHelper(self.board)
+        self.player_piece_movement_helper = PlayerPieceMovementHelper(self.board)
+        self.player_pattern_update_helper = PlayerPatternUpdateHelper()
 
         self.current_board_interface = None
         self.current_player_interface = None
@@ -136,7 +134,6 @@ class Game():
         self.game_over = False
         self.continue_status = False
 
-        self.board = Board(self.max_row, self.max_col)
         self.deck = TileDeck()
         self.players.clear()
         for number, info in enumerate(player_info_list):
@@ -144,11 +141,6 @@ class Game():
             color = info[1]
             player = Player(number + 1, name, color)
             self.players.append(player)
-
-        self.player_tile_placement_helper = PlayerTilePlacementHelper(self.board)
-        self.player_piece_placement_helper = PlayerPiecePlacementHelper(self.board)
-        self.player_piece_movement_helper = PlayerPieceMovementHelper(self.board)
-        self.player_pattern_update_helper = PlayerPatternUpdateHelper()
 
         self.current_player_interface = None
         self.current_board_interface = None

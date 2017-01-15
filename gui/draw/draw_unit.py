@@ -5,7 +5,6 @@ Draw Unit for pygame
 '''
 import pygame
 from pygame.locals import *
-# from game.color.constant import WHITE
 
 
 class DrawUnit():
@@ -17,8 +16,6 @@ class DrawUnit():
         self.pygame.init()
         self.displaysurf = self.pygame.display.set_mode((width, height))
         self.basicfont = self.pygame.font.Font('freesansbold.ttf', 18)
-        self.fpsclock = pygame.time.Clock()
-        self.fps = 30
 
         self.width = self.displaysurf.get_width()
         self.height = self.displaysurf.get_height()
@@ -78,8 +75,8 @@ class DrawUnit():
         press_key_rect.topleft = (left, top)
         self.displaysurf.blit(press_key_surf, press_key_rect)
 
-    def pygame_fps_tick(self):
+    def update(self):
         '''
-        tick fps clock
+        update
         '''
-        self.fpsclock.tick(self.fps)
+        pygame.display.update()

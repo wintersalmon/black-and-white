@@ -3,47 +3,50 @@ BLACK-AND-WHITE
 WinterSalmon
 EventHandler for 'player piece placement event'
 '''
+import pygame
+from pygame.locals import *
+
+from gui.handler.handle_event import HandleEvent
+from game.board.direction import DIRECTION
 
 
-from gui.handler.event_handler import EventHandler
-
-
-class HandlePlayerPlacement(EventHandler):
+class HandlePlayerPlacement(HandleEvent):
     '''
     EventHandler for 'player piece placement event'
     '''
     def __init__(self, game):
         super().__init__(game)
 
+        self.add_key_down(K_UP, lambda: self.handle_event_move(DIRECTION.UP))
+        self.add_key_down(K_DOWN, lambda: self.handle_event_move(DIRECTION.DOWN))
+        self.add_key_down(K_RIGHT, lambda: self.handle_event_move(DIRECTION.RIGHT))
+        self.add_key_down(K_LEFT, lambda: self.handle_event_move(DIRECTION.LEFT))
 
-    def handle(self, event):
+        self.add_key_down(K_w, lambda: self.handle_event_move(DIRECTION.UP))
+        self.add_key_down(K_s, lambda: self.handle_event_move(DIRECTION.DOWN))
+        self.add_key_down(K_d, lambda: self.handle_event_move(DIRECTION.RIGHT))
+        self.add_key_down(K_a, lambda: self.handle_event_move(DIRECTION.LEFT))
+
+        self.add_key_down(K_RETURN, self.handle_event_confirm)
+        self.add_key_down(K_SPACE, self.handle_event_confirm)
+
+    def handle_event_move(self, direction):
         '''
-        handle event and return result message
+        handle move to direction event
         '''
         helper = self.game.player_piece_placement_helper
-        continue_status = True
-        message = None
+        event_result = helper.move(direction)
+        event_title = 'Move Tile'
+        event_param = direction.name
+        return self.create_local_message(event_result, event_title, event_param)
 
-        if event.type == self.key_down:
-            result = False
-            event_type = 'Wrong Input'
-            event_param = None
-            if event.key in self.key_directions:
-                direction = self.get_direction(event.key)
-                result = helper.move(direction)
-                event_type = 'Player Placement'
-                event_param = direction.name
-
-            elif event.key in self.key_okay:
-                if helper.can_save_target():
-                    helper.save_target()
-                    message = self.create_result_message(True, 'Player Placement')
-                    continue_status = False
-                else:
-                    message = self.create_result_message(False, 'Player Placement')
-                    continue_status = True
-
-            message = self.create_result_message(result, event_type, event_param)
-
-        self.game.continue_status = continue_status
-        return message
+    def handle_event_confirm(self):
+        '''
+        handle confirm event
+        '''
+        helper = self.game.player_piece_placement_helper
+        event_result = helper.save_target()
+        event_title = 'Player Placement'
+        if event_result:
+            self.game.continue_status = False
+        return self.create_local_message(event_result, event_title)
