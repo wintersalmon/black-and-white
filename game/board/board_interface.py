@@ -35,3 +35,10 @@ class BoardInterface():
         returns color of the block located on [row,col]
         '''
         raise NotImplementedError('You need to implement set_piece')
+
+
+    def is_marked(self, row, col):
+        '''
+        returns True if block[row,col] is marked
+        '''
+        raise NotImplementedError('You need to implement is_marked')
