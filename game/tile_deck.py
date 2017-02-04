@@ -3,7 +3,6 @@ BLACK-AND-WHITE
 WinterSalmon
 Contains TileDeck
 '''
-
 import random
 
 from game.board.tile import TileWW, TileWG, TileWB, TileGB
@@ -15,37 +14,31 @@ class TileDeck():
     '''
     def __init__(self):
         self.tiles = list()
-        self.start_count = dict()
-        self.__set_start_count()
+        self.start_tile = dict()
+        self.__set_start_tile()
         self.__reset_deck()
         self.shuffle()
 
 
-    def __set_start_count(self, count_ww=12, count_wg=12, count_wb=6, count_gb=6):
+    def __set_start_tile(self, *, count_ww=12, count_wg=12, count_wb=6, count_gb=6):
         '''
         set default start count
         '''
-        self.start_count['WW'] = count_ww
-        self.start_count['WG'] = count_wg
-        self.start_count['WB'] = count_wb
-        self.start_count['GB'] = count_gb
+        # need better way to express start_tile
+        self.start_tile['WW'] = (count_ww, TileWW)
+        self.start_tile['WG'] = (count_wg, TileWG)
+        self.start_tile['WB'] = (count_wb, TileWB)
+        self.start_tile['GB'] = (count_gb, TileGB)
 
 
     def __reset_deck(self):
         '''
         reset deck content with preseted start count
         '''
-        for _ in range(self.start_count['WW']):
-            self.tiles.append(TileWW())
-
-        for _ in range(self.start_count['WG']):
-            self.tiles.append(TileWG())
-
-        for _ in range(self.start_count['WB']):
-            self.tiles.append(TileWB())
-
-        for _ in range(self.start_count['GB']):
-            self.tiles.append(TileGB())
+        # need better way to express start_tile
+        for count, tile in self.start_tile.values():
+            for _ in range(count):
+                self.tiles.append(tile())
 
 
     def __getitem__(self, key):

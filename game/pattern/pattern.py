@@ -3,8 +3,6 @@ BLACK-AND-WHITE
 WinterSalmon
 Pattern
 '''
-
-
 import copy
 from collections import namedtuple
 
