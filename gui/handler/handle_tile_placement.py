@@ -33,10 +33,10 @@ class HandleTilePlacement(HandleEvent):
         self.add_key_down(K_d, lambda: self.handle_event_move(DIRECTION.RIGHT))
         self.add_key_down(K_a, lambda: self.handle_event_move(DIRECTION.LEFT))
 
-        self.add_key_down(K_1, lambda: self.handle_event_select_tile(1))
-        self.add_key_down(K_2, lambda: self.handle_event_select_tile(2))
-        self.add_key_down(K_3, lambda: self.handle_event_select_tile(3))
-        self.add_key_down(K_4, lambda: self.handle_event_select_tile(4))
+        self.add_key_down(K_1, lambda: self.handle_event_select_tile(0))
+        self.add_key_down(K_2, lambda: self.handle_event_select_tile(1))
+        self.add_key_down(K_3, lambda: self.handle_event_select_tile(2))
+        self.add_key_down(K_4, lambda: self.handle_event_select_tile(3))
 
         self.add_key_down(K_e, lambda: self.handle_event_rotate(1))
         self.add_key_down(K_q, lambda: self.handle_event_rotate(3))
