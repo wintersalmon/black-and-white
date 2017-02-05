@@ -145,7 +145,7 @@ class Game():
         self.current_player_interface = None
         self.current_board_interface = None
 
-        self.rule_max_round_count = 1
+        self.rule_max_round_count = 3
         self.current_round_count = 0
 
 
